@@ -1,4 +1,8 @@
-require('dotenv').config();
+try {
+  require('dotenv').config();
+} catch (e) {
+  // dotenv package not installed locally yet
+}
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
