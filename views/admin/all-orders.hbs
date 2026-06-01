@@ -1,0 +1,76 @@
+<section>
+    <div class="container">
+        <div class="row mt-4">
+            <h3>All Orders</h3>
+        </div>
+        <table class="table mt-5">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Pincode</th>
+                    <th scope="col">Mobile</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Payment</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each orders}}
+                <tr>
+                    <td>{{this.date}}</td>
+
+                    <td>{{this.deliveryDetails.address}}</td>
+                    <td>{{this.deliveryDetails.pincode}}</td>
+                    <td>{{this.deliveryDetails.mobile}}</td>
+                    <td>{{this.totalAmount}}</td>
+                    <td>{{this.paymentMethod}}</td>
+                    <td>{{this.status}}</td>
+                    <td>
+                        <a href="/admin/view-profile/{{this.userId}}" class="btn btn-info">View User</a>
+                        <a href="/admin/view-order-products/{{this._id}}"
+                            class="btn {{#unless this.adminViewed}}btn-success{{else}}btn-primary{{/unless}}">View
+                            Products</a>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{this.status}}
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="#"
+                                    onclick="statusChange('placed','{{this._id}}')">Placed</a>
+                                <a class="dropdown-item" href="#"
+                                    onclick="statusChange('shipped','{{this._id}}')">Shipped</a>
+                                <a class="dropdown-item" href="#"
+                                    onclick="statusChange('delivered','{{this._id}}')">Delivered</a>
+                                <a class="dropdown-item" href="#"
+                                    onclick="statusChange('pending','{{this._id}}')">Pending</a>
+                                <a class="dropdown-item" href="#"
+                                    onclick="statusChange('canceled','{{this._id}}')">Canceled</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<script>
+    function statusChange(status, orderId) {
+        $.ajax({
+            url: '/admin/status-change',
+            method: 'post',
+            data: {
+                status: status,
+                orderId: orderId
+            },
+            success: (response) => {
+                if (response.status) {
+                    location.reload()
+                }
+            }
+        })
+    }
+</script>

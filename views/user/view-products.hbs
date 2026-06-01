@@ -1,0 +1,294 @@
+<!-- Section 1: Hero Ad Section -->
+<section class="hadvo-hero">
+  <div class="hero-bg" style="background-image: url('/images/hadvo_banner.png');"></div>
+  <div class="hero-overlay"></div>
+  <div class="container hero-container">
+    <div class="hero-content">
+      <span class="hero-badge">AD / THE HADVO JOURNAL</span>
+      <h1 class="hero-title">Refined Essentials for Modern Everyday Living</h1>
+      <p class="hero-subtitle">
+        A careful curation of luxury garments, signature apothecary scent-scapes, and precision engineered objects. Design crafted for simplicity, utility, and modern aesthetics.
+      </p>
+      <div class="hero-actions">
+        <a href="#collections" class="btn-hadvo-primary">Explore Shop</a>
+        <a href="#about-us" class="btn-hadvo-secondary">Our Ethos</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section 2: Category Showcase -->
+<section class="category-showcase-section" id="collections">
+  <div class="container">
+    <div class="section-header text-center">
+      <span class="section-tag">CURATED COLLECTIONS</span>
+      <h2 class="section-title">The Hadvo Edit</h2>
+      <p class="section-desc">Browse our seasonal chapters crafted for functional luxury.</p>
+    </div>
+
+    <div class="row g-4 category-cards-row">
+      <!-- Clothing Category -->
+      <div class="col-md-4">
+        <a href="#clothings" class="category-card">
+          <div class="category-img-wrap">
+            <img src="/images/cat_clothing.png" alt="Clothings Collection">
+          </div>
+          <div class="category-card-info">
+            <h3>Clothings</h3>
+            <p>Premium fabrics, organic threads</p>
+            <span class="explore-link">
+              Explore
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Perfume Category -->
+      <div class="col-md-4">
+        <a href="#perfumes" class="category-card">
+          <div class="category-img-wrap">
+            <img src="/images/cat_perfume.png" alt="Perfumes Collection">
+          </div>
+          <div class="category-card-info">
+            <h3>Perfumes</h3>
+            <p>Curated botanicals, lasting impressions</p>
+            <span class="explore-link">
+              Explore
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Electronics Category -->
+      <div class="col-md-4">
+        <a href="#electronics" class="category-card">
+          <div class="category-img-wrap">
+            <img src="/images/cat_electronics.png" alt="Electronics Collection">
+          </div>
+          <div class="category-card-info">
+            <h3>Electronics</h3>
+            <p>Precision engineering, understated forms</p>
+            <span class="explore-link">
+              Explore
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section 3: Product Categories Showcase Grids -->
+<section class="products-showcase-section">
+  <div class="container">
+
+    <!-- CLOTHINGS GROUP -->
+    <div class="category-group" id="clothings">
+      <div class="category-group-header">
+        <div class="header-left">
+          <span class="category-tag">01 / APPAREL</span>
+          <h3 class="category-group-title">Clothings</h3>
+        </div>
+        <p class="category-group-desc">Tailored cuts, premium organic fabrics, built to wear beautifully over time.</p>
+      </div>
+
+      <div class="row g-4">
+        {{#each products}}
+          {{#if (eq this.category "Clothings")}}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="product-card">
+                <div class="product-img-wrap">
+                  <img src="/product-images/{{this._id}}.jpg" alt="{{this.name}}">
+                </div>
+                <div class="product-info">
+                  <span class="product-tag">{{this.category}}</span>
+                  <h4 class="product-title">{{this.name}}</h4>
+                  <p class="product-desc">{{this.description}}</p>
+                  <div class="product-meta">
+                    <span class="product-price">₹{{this.price}}</span>
+                    <button onclick="addToCart('{{this._id}}')" class="add-to-cart-btn" id="add-{{this._id}}">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                      </svg>
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {{/if}}
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- PERFUMES GROUP -->
+    <div class="category-group" id="perfumes">
+      <div class="category-group-header">
+        <div class="header-left">
+          <span class="category-tag">02 / APOTHECARY</span>
+          <h3 class="category-group-title">Perfumes</h3>
+        </div>
+        <p class="category-group-desc">Intense botanical extracts and clean elements combined to capture lasting memories.</p>
+      </div>
+
+      <div class="row g-4">
+        {{#each products}}
+          {{#if (eq this.category "Perfumes")}}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="product-card">
+                <div class="product-img-wrap">
+                  <img src="/product-images/{{this._id}}.jpg" alt="{{this.name}}">
+                </div>
+                <div class="product-info">
+                  <span class="product-tag">{{this.category}}</span>
+                  <h4 class="product-title">{{this.name}}</h4>
+                  <p class="product-desc">{{this.description}}</p>
+                  <div class="product-meta">
+                    <span class="product-price">₹{{this.price}}</span>
+                    <button onclick="addToCart('{{this._id}}')" class="add-to-cart-btn" id="add-{{this._id}}">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                      </svg>
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {{/if}}
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- ELECTRONICS GROUP -->
+    <div class="category-group" id="electronics">
+      <div class="category-group-header">
+        <div class="header-left">
+          <span class="category-tag">03 / OBJECTS</span>
+          <h3 class="category-group-title">Electronics</h3>
+        </div>
+        <p class="category-group-desc">Clean design meets high fidelity performance. Devices that fit naturally into your space.</p>
+      </div>
+
+      <div class="row g-4">
+        {{#each products}}
+          {{#if (eq this.category "Electronics")}}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="product-card">
+                <div class="product-img-wrap">
+                  <img src="/product-images/{{this._id}}.jpg" alt="{{this.name}}">
+                </div>
+                <div class="product-info">
+                  <span class="product-tag">{{this.category}}</span>
+                  <h4 class="product-title">{{this.name}}</h4>
+                  <p class="product-desc">{{this.description}}</p>
+                  <div class="product-meta">
+                    <span class="product-price">₹{{this.price}}</span>
+                    <button onclick="addToCart('{{this._id}}')" class="add-to-cart-btn" id="add-{{this._id}}">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                      </svg>
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {{/if}}
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- OTHER PRODUCTS (e.g. mobile phones or pre-existing products) -->
+    {{#if products}}
+      <div class="category-group" id="other-items">
+        <div class="category-group-header">
+          <div class="header-left">
+            <span class="category-tag">04 / ARCHIVES</span>
+            <h3 class="category-group-title">Other Products</h3>
+          </div>
+          <p class="category-group-desc">Explore more products from our curated warehouse collection.</p>
+        </div>
+
+        <div class="row g-4">
+          {{#each products}}
+            {{#unless (eq this.category "Clothings")}}
+              {{#unless (eq this.category "Perfumes")}}
+                {{#unless (eq this.category "Electronics")}}
+                  <div class="col-6 col-md-4 col-lg-3">
+                    <div class="product-card">
+                      <div class="product-img-wrap">
+                        <img src="/product-images/{{this._id}}.jpg" alt="{{this.name}}">
+                      </div>
+                      <div class="product-info">
+                        <span class="product-tag">{{this.category}}</span>
+                        <h4 class="product-title">{{this.name}}</h4>
+                        <p class="product-desc">{{this.description}}</p>
+                        <div class="product-meta">
+                          <span class="product-price">₹{{this.price}}</span>
+                          <button onclick="addToCart('{{this._id}}')" class="add-to-cart-btn" id="add-{{this._id}}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Add
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {{/unless}}
+              {{/unless}}
+            {{/unless}}
+          {{/each}}
+        </div>
+      </div>
+    {{/if}}
+
+  </div>
+</section>
+
+<!-- Section 4: About Us Section -->
+<section class="about-us-section" id="about-us">
+  <div class="container">
+    <div class="row align-items-center gy-5">
+      <div class="col-lg-6">
+        <span class="about-tag">OUR PHILOSOPHY</span>
+        <h2 class="about-title">Built on Quiet Design, Quality Materials & Absolute Utility</h2>
+        <p class="about-quote">"In a world filled with excess noise, we choose to design clarity."</p>
+      </div>
+      <div class="col-lg-6">
+        <div class="about-text-content">
+          <p>
+            Hadvo was founded as an exercise in reduction. We began with the simple idea that everyday items—whether the shirt on your back, the scent in your home, or the charger on your desk—should be crafted without compromise.
+          </p>
+          <p>
+            Our apparel utilizes premium organic cottons and merino wools designed to wear in, not out. Our apothecaries capture raw, botanical notes that linger subtly. Our objects are designed using anodized aluminum, glass, and sustainable components. We believe that true luxury lies in the details that are felt, not shouted.
+          </p>
+          <div class="about-stats">
+            <div class="stat-item">
+              <span class="stat-num">100%</span>
+              <span class="stat-label">Organic Cotton</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num">Artisanal</span>
+              <span class="stat-label">Botanical Fragrance</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num">Plastic Free</span>
+              <span class="stat-label">Product Packaging</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

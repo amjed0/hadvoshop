@@ -1,0 +1,30 @@
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <h1>New Collection</h1>
+        <p>Discover the latest trends in fashion. Premium quality, sustainable materials, and modern designs just for
+            you.</p>
+        <a href="#products" class="btn btn-primary btn-lg">Shop Now</a>
+    </div>
+</div>
+
+<!-- Products Section -->
+<section id="products">
+    <div class="container">
+        <div class="row g-4"> <!-- g-4 for better gap spacing -->
+            {{#each products}}
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card card-product">
+                    <img src="{{this.image}}" class="card-img-top" alt="{{this.name}}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{this.name}}</h5>
+                        <p class="card-text">{{this.Description}}</p>
+                        <!-- Price could go here if available -->
+                        <a href="#" class="btn btn-primary">Add to cart</a>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</section>

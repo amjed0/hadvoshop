@@ -1,0 +1,27 @@
+<section>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h4>User Profile</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="User Icon"
+                                class="rounded-circle" width="100">
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Name:</strong> {{user.Name}}</li>
+                            <li class="list-group-item"><strong>Email:</strong> {{user.Email}}</li>
+                            <li class="list-group-item"><strong>User ID:</strong> {{user._id}}</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="/admin/all-orders" class="btn btn-secondary">Back to Orders</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

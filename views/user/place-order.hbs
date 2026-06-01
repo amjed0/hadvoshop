@@ -1,0 +1,427 @@
+<section class="checkout-section">
+  <div class="container">
+    <div class="checkout-header">
+      <span class="checkout-tag">SECURE CHECKOUT</span>
+      <h1 class="checkout-title">Complete Your Order</h1>
+      <p class="checkout-desc">Enter your delivery address and choose a payment method to finalize your order.</p>
+    </div>
+
+    <div class="row gy-5">
+      <!-- Form Column -->
+      <div class="col-lg-7">
+        <div class="checkout-card">
+          <h2 class="card-section-title">01 / Shipping Details</h2>
+          <form action="/place-order" id="checkout-form" method="POST">
+            <div class="row g-4">
+              <div class="col-12">
+                <label for="address" class="hadvo-form-label">Full Address</label>
+                <textarea class="hadvo-form-control" name="address" id="address" rows="3" placeholder="Apartment, suite, street address" required></textarea>
+              </div>
+              <div class="col-md-6">
+                <label for="pincode" class="hadvo-form-label">Postal Pincode</label>
+                <input type="tel" inputmode="numeric" class="hadvo-form-control" name="pincode" id="pincode" maxlength="6" placeholder="6-digit pincode" required oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,6)">
+                <p id="pincode-warning" class="hadvo-warning-text" style="display:none;">Pincode must be exactly 6 digits</p>
+              </div>
+              <div class="col-md-6">
+                <label for="mobile" class="hadvo-form-label">Contact Number</label>
+                <input type="tel" inputmode="numeric" class="hadvo-form-control" name="mobile" id="mobile" maxlength="10" placeholder="10-digit mobile number" required oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
+                <p id="mobile-warning" class="hadvo-warning-text" style="display:none;">Mobile number must be exactly 10 digits</p>
+                <input type="hidden" name="userId" value="{{user._id}}">
+              </div>
+            </div>
+
+            <h2 class="card-section-title mt-5">02 / Payment Method</h2>
+            <div class="payment-methods-group">
+              <label class="payment-method-card">
+                <input type="radio" name="payment-method" value="COD" checked>
+                <span class="payment-card-content">
+                  <span class="payment-title">Cash on Delivery (COD)</span>
+                  <span class="payment-subtitle">Pay with cash upon delivery.</span>
+                </span>
+              </label>
+
+              <label class="payment-method-card mt-3">
+                <input type="radio" name="payment-method" value="ONLINE">
+                <span class="payment-card-content">
+                  <span class="payment-title">Online Payment (Razorpay)</span>
+                  <span class="payment-subtitle">Pay securely with Cards, Netbanking, UPI, or Wallets.</span>
+                </span>
+              </label>
+            </div>
+
+            <button class="btn-hadvo-checkout mt-5" type="submit">Place Order</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Summary Column -->
+      <div class="col-lg-5">
+        <div class="checkout-summary-card">
+          <h2 class="summary-card-title">Order Summary</h2>
+          <div class="summary-line-item">
+            <span>Subtotal</span>
+            <span>₹{{total}}</span>
+          </div>
+          <div class="summary-line-item">
+            <span>Shipping</span>
+            <span class="text-free">FREE</span>
+          </div>
+          <hr class="summary-divider">
+          <div class="summary-total-item">
+            <span>Total Amount</span>
+            <span>₹{{total}}</span>
+          </div>
+          <div class="summary-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            SSL Secure Checkout
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  $("#checkout-form").submit(function (e) {
+    e.preventDefault(); // Stop normal form submission
+
+    var pincode = $("#pincode").val();
+    if (!/^\d{6}$/.test(pincode)) {
+      $("#pincode-warning").show();
+      return;
+    }
+    $("#pincode-warning").hide();
+
+    var mobile = $("#mobile").val();
+    if (!/^\d{10}$/.test(mobile)) {
+      $("#mobile-warning").show();
+      return;
+    }
+    $("#mobile-warning").hide();
+
+    // Disable button to prevent double clicks
+    const submitBtn = $(this).find('button[type="submit"]');
+    submitBtn.prop('disabled', true).text('Processing...');
+
+    $.ajax({
+      url: "/place-order",
+      method: "post",
+      data: $("#checkout-form").serialize(),
+      success: function (response) {
+        if (response.codSuccess) {
+          // COD order placed
+          window.location.href = "/order-success";
+        } else if (response.error) {
+          alert("Error: " + response.message);
+          submitBtn.prop('disabled', false).text('Place Order');
+        } else {
+          // Razorpay payment: open popup with order details
+          openRazorpayPayment(response, submitBtn);
+        }
+      },
+      error: function () {
+        alert("Order placement failed. Please try again.");
+        submitBtn.prop('disabled', false).text('Place Order');
+      }
+    });
+  });
+
+  function openRazorpayPayment(order, submitBtn) {
+    var options = {
+      "key": order.key, // Dynamic key passed from backend
+      "amount": order.amount, // Amount in paise
+      "currency": "INR",
+      "name": "hadvo",
+      "description": "Refined Essentials Purchase",
+      "order_id": order.id,     // Provided by backend
+      "handler": function (response) {
+        verifyPayment(response, order, submitBtn);
+      },
+      "modal": {
+        "ondismiss": function() {
+          submitBtn.prop('disabled', false).text('Place Order');
+        }
+      },
+      "prefill": {
+        "name": "{{user.Name}}",
+        "email": "{{user.Email}}",
+        "contact": $("#mobile").val()
+      },
+      "theme": {
+        "color": "#111111"
+      }
+    };
+    var rzp = new Razorpay(options);
+    rzp.open();
+  }
+
+  function verifyPayment(payment, order, submitBtn) {
+    $.ajax({
+      url: "/verify-payment",
+      method: "post",
+      data: {
+        payment: payment,
+        order: order
+      },
+      success: function (response) {
+        if (response.status) {
+          window.location.href = "/order-success";
+        } else {
+          alert("Payment verification failed. Please contact support.");
+          submitBtn.prop('disabled', false).text('Place Order');
+        }
+      },
+      error: function() {
+        alert("Verification request failed. Please check connection.");
+        submitBtn.prop('disabled', false).text('Place Order');
+      }
+    });
+  }
+</script>
+
+<style>
+  .checkout-section {
+    padding: 5rem 0 7rem;
+    background: var(--bg-cream);
+  }
+
+  .checkout-header {
+    margin-bottom: 4rem;
+  }
+
+  .checkout-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--grey-400);
+  }
+
+  .checkout-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    margin: 0.4rem 0 0.8rem;
+  }
+
+  .checkout-desc {
+    font-size: 0.95rem;
+    color: var(--grey-600);
+    max-width: 600px;
+  }
+
+  .checkout-card {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+  }
+
+  .card-section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    margin-bottom: 2rem;
+    color: var(--black);
+    text-transform: uppercase;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--grey-100);
+    padding-bottom: 0.8rem;
+  }
+
+  .hadvo-form-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--grey-600);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .hadvo-form-control {
+    width: 100%;
+    border: 1px solid var(--grey-200);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-family: var(--font);
+    outline: none;
+    background: var(--bg-light);
+    color: var(--black);
+    transition: var(--transition);
+  }
+
+  .hadvo-form-control:focus {
+    border-color: var(--black);
+    background: var(--white);
+  }
+
+  .hadvo-warning-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #dc3545;
+    margin: 0.4rem 0 0;
+  }
+
+  /* Custom Payment Cards */
+  .payment-methods-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .payment-method-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 1.25rem;
+    border: 1px solid var(--grey-200);
+    border-radius: var(--radius);
+    background: var(--white);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .payment-method-card:hover {
+    border-color: var(--grey-400);
+  }
+
+  .payment-method-card input[type="radio"] {
+    appearance: none;
+    background-color: #fff;
+    margin: 3px 0 0;
+    font: inherit;
+    color: var(--black);
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--grey-400);
+    border-radius: 50%;
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .payment-method-card input[type="radio"]::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transform: scale(0);
+    transition: var(--transition);
+    box-shadow: inset 1em 1em var(--black);
+  }
+
+  .payment-method-card input[type="radio"]:checked {
+    border-color: var(--black);
+  }
+
+  .payment-method-card input[type="radio"]:checked::before {
+    transform: scale(1);
+  }
+
+  .payment-card-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .payment-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--black);
+  }
+
+  .payment-subtitle {
+    font-size: 0.78rem;
+    color: var(--grey-600);
+    margin-top: 0.15rem;
+  }
+
+  .btn-hadvo-checkout {
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    border-radius: 50px;
+    padding: 0.9rem 2.2rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    width: 100%;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: var(--transition);
+  }
+
+  .btn-hadvo-checkout:hover {
+    background: #333;
+    transform: translateY(-2px);
+  }
+
+  .btn-hadvo-checkout:disabled {
+    background: var(--grey-400);
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Summary Card */
+  .checkout-summary-card {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--radius);
+    padding: 2.2rem;
+    position: sticky;
+    top: 100px;
+  }
+
+  .summary-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    margin-bottom: 2rem;
+  }
+
+  .summary-line-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--grey-600);
+    margin-bottom: 1rem;
+  }
+
+  .text-free {
+    color: #198754;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+  }
+
+  .summary-divider {
+    border-color: var(--grey-200);
+    margin: 1.5rem 0;
+  }
+
+  .summary-total-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 2rem;
+  }
+
+  .summary-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--grey-600);
+    background: var(--bg-light);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+  }
+</style>
