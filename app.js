@@ -1,3 +1,4 @@
+require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -41,10 +42,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(fileUpload());
 app.use(session({
-  secret: "key",
+  secret: process.env.SESSION_SECRET || "key",
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: 'mongodb://localhost:27017/shopping' }),
+  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/shopping' }),
   cookie: { maxAge: 600000 }
 }))
 app.use((req, res, next) => {
