@@ -56,10 +56,20 @@ app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store');
   next();
 });
-db.connect((err) => {
-  if (err) console.log('❌ Database Connection Error: ' + err);
-  else console.log('✅ Database Connected to port 27017');
+db.connect();
+
+// Middleware ensuring database connection for serverless cold-starts
+app.use(async (req, res, next) => {
+  if (!db.get()) {
+    try {
+      await db.connect();
+    } catch (e) {
+      console.error('❌ Serverless DB connection attempt failed:', e);
+    }
+  }
+  next();
 });
+
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
 

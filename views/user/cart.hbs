@@ -12,10 +12,16 @@
         {{#each products}}
         <tr>
 
-          <td><img style="width: 70px; height:70px" src="/product-images/{{this.product._id}}.jpg" alt="">
+          <td><img style="width: 70px; height:70px; object-fit: cover;" class="rounded-3 border" src="{{#if this.product.image}}{{this.product.image}}{{else}}/product-images/{{this.product._id}}.jpg{{/if}}" alt="" onerror="this.onerror=null;this.src='/images/hadvo_banner.png';">
           </td>
-          <td>{{this.product.name}}</td>
-          <td>Rs.{{this.product.price}}</td>
+          <td>
+            {{#if this.product.offerPrice}}
+              <span class="fw-bold text-success">₹{{this.product.offerPrice}}</span>
+              <del class="text-muted small ms-1">₹{{this.product.price}}</del>
+            {{else}}
+              ₹{{this.product.price}}
+            {{/if}}
+          </td>
 
           <td>
             <button class="cart-item-count mr-3" onclick="changeQuantity('{{this._id}}','{{this.product._id}}',-1)"

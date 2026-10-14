@@ -1,11 +1,14 @@
-<header>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
+<header class="sticky-top bg-white border-bottom shadow-sm">
+  <nav class="navbar navbar-expand-lg py-2">
+    <div class="container-fluid px-lg-4">
 
-      <a class="navbar-brand" href="/admin">Admin Panel</a>
+      <a class="navbar-brand d-flex align-items-center gap-2 text-decoration-none" href="/admin/dashboard">
+        <span class="fs-4 fw-bold text-dark tracking-tight"><span class="text-primary">●</span> hadvo</span>
+        <span class="badge bg-dark text-white rounded-pill px-2 py-1 fs-8 fw-semibold letter-spacing-1">ADMIN</span>
+      </a>
 
       <!-- Mobile Menu Button -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
+      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
         aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -13,29 +16,55 @@
       <!-- MENU -->
       <div class="collapse navbar-collapse" id="adminNav">
 
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1 gap-lg-2">
 
           <li class="nav-item">
-            <a class="nav-link" href="/admin">All Products</a>
+            <a class="nav-link px-3 py-2 rounded-pill fw-medium {{#if (eq activeNav 'dashboard')}}bg-dark text-white{{else}}text-secondary{{/if}}" href="/admin/dashboard">
+              Dashboard
+            </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="/admin/all-orders">All Orders</a>
+            <a class="nav-link px-3 py-2 rounded-pill fw-medium {{#if (eq activeNav 'add-product')}}bg-dark text-white{{else}}text-secondary{{/if}}" href="/admin/add-product">
+              ➕ Add Product
+            </a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="/admin/all-users">All Users</a>
+            <a class="nav-link px-3 py-2 rounded-pill fw-medium {{#if (eq activeNav 'categories')}}bg-dark text-white{{else}}text-secondary{{/if}}" href="/admin/all-categories">
+              📁 Categories
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link px-3 py-2 rounded-pill fw-medium {{#if (eq activeNav 'orders')}}bg-dark text-white{{else}}text-secondary{{/if}}" href="/admin/all-orders">
+              📦 Orders
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link px-3 py-2 rounded-pill fw-medium {{#if (eq activeNav 'users')}}bg-dark text-white{{else}}text-secondary{{/if}}" href="/admin/all-users">
+              Users
+            </a>
           </li>
 
         </ul>
 
-        <!-- SEARCH -->
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <a href="/" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1-5 d-flex align-items-center gap-1">
+            <span>View Store</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+          </a>
+
+          <a href="/admin/logout" class="btn btn-sm btn-danger rounded-pill px-3 py-1-5">
+            Logout
+          </a>
+        </div>
 
       </div>
     </div>
   </nav>
 </header>
+

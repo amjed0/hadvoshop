@@ -4,9 +4,9 @@
       {{#each products}}
         <div class="col-md-3 p-3">
           <div class="card" style="width: 15rem; height: 24rem;">
-            <img class="card-img-top" 
-              src="/product-images/{{this.product._id}}.jpg"
-              alt="Card image" style="height: 12rem;">
+            <img class="card-img-top object-fit-cover" 
+              src="{{#if this.product.image}}{{this.product.image}}{{else}}/product-images/{{this.product._id}}.jpg{{/if}}"
+              alt="Card image" style="height: 12rem;" onerror="this.onerror=null;this.src='/images/hadvo_banner.png';">
             <div class="card-body">
               <h5 class="card-title">{{this.product.name}}</h5>
               <p class="card-text">Rs. {{this.product.price}}</p>

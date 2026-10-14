@@ -17,6 +17,18 @@
           <li class="nav-item">
             <a class="nav-link" href="/">Shop</a>
           </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="categoriesNav" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Categories
+            </a>
+            <ul class="dropdown-menu hadvo-dropdown shadow-sm" aria-labelledby="categoriesNav">
+              <li><a class="dropdown-item" href="/category/Clothings">Clothings</a></li>
+              <li><a class="dropdown-item" href="/category/Perfumes">Perfumes</a></li>
+              <li><a class="dropdown-item" href="/category/Electronics">Electronics</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item small text-muted" href="/#collections">Browse Collections</a></li>
+            </ul>
+          </li>
           {{#if user}}
           <li class="nav-item">
             <a class="nav-link" href="/orders">My Orders</a>

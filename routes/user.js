@@ -12,23 +12,60 @@ const verifyLogin = (req, res, next) => {
 }
 /* GET home page. */
 router.get('/', async function (req, res, next) {
-  let user = req.session.user
-  console.log(user);
-  let cartCount = null
-  if (req.session.user) {
-    cartCount = await userHelpers.getCartCount(req.session.user._id)
+  try {
+    let user = req.session.user;
+    let cartCount = null;
+    if (req.session.user) {
+      cartCount = await userHelpers.getCartCount(req.session.user._id);
+    }
+    let categories = await productHelpers.getAllCategories();
+    res.render('user/view-products', { categories, user, cartCount });
+  } catch (err) {
+    next(err);
   }
-  productHelpers.getAllProducts().then((products) => {
-    res.render('user/view-products', { products, user, cartCount })
-  })
 });
+
+/* GET separate category page. */
+router.get('/category/:categoryName', async function (req, res, next) {
+  try {
+    let categoryName = req.params.categoryName;
+    let user = req.session.user;
+    let cartCount = null;
+    if (req.session.user) {
+      cartCount = await userHelpers.getCartCount(req.session.user._id);
+    }
+    let products = await productHelpers.getProductsByCategory(categoryName);
+    let category = await productHelpers.getCategoryDetails(categoryName);
+    let allCategories = await productHelpers.getAllCategories();
+
+    res.render('user/category-products', {
+      categoryName,
+      category,
+      products,
+      allCategories,
+      user,
+      cartCount,
+      title: `${categoryName} Collection`
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/* GET /categories redirect */
+router.get('/categories', (req, res) => {
+  res.redirect('/#collections');
+});
+
 router.get('/login', (req, res) => {
   if (req.session.userLoggedIn) {
     return res.redirect('/');
   } else {
-
-    res.render('user/login', { "loginErr": req.session.loginErr })
-    req.session.userLoginErr = false
+    let loginErr = req.session.loginErr;
+    let isUserNotFound = req.session.isUserNotFound;
+    req.session.loginErr = null;
+    req.session.isUserNotFound = null;
+    res.render('user/login', { loginErr, isUserNotFound });
   }
 });
 router.get('/signup', (req, res) => {
@@ -49,12 +86,19 @@ router.post('/login', (req, res) => {
       req.session.user = response.user;
       res.redirect('/');
     } else {
-      req.session.loginErr = "Invalid Email or Password";
-      res.redirect('/login');
+      req.session.loginErr = response.message || "Invalid Email or Password";
+      req.session.isUserNotFound = response.notFound || false;
+      req.session.save(() => {
+        res.redirect('/login');
+      });
     }
   }).catch(err => {
     console.log("Login error:", err);
-    res.redirect('/login');
+    req.session.loginErr = "Something went wrong. Please try again.";
+    req.session.isUserNotFound = false;
+    req.session.save(() => {
+      res.redirect('/login');
+    });
   });
 });
 

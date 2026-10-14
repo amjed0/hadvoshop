@@ -6,9 +6,10 @@
                 <div class="card h-100 shadow-sm">
 
                     <img class="card-img-top" 
-                         src="/product-images/{{this.product._id}}.jpg" 
+                         src="{{#if this.product.image}}{{this.product.image}}{{else}}/product-images/{{this.product._id}}.jpg{{/if}}" 
                          alt="Product image" 
-                         style="height: 180px; object-fit: cover;">
+                         style="height: 180px; object-fit: cover;"
+                         onerror="this.onerror=null;this.src='/images/hadvo_banner.png';">
 
                     <div class="card-body">
                         <h5 class="card-title text-truncate">{{this.product.name}}</h5>

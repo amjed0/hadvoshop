@@ -21,24 +21,30 @@ module.exports = {
     },
     doLogin: (userData) => {
         return new Promise(async (resolve, reject) => {
-            let loginStatus = false
-            let response = {}
-            let user = await db.get().collection(collection.USER_COLLECTION).findOne({ Email: userData.Email })
-            if (user) {
-                bcrypt.compare(userData.Password, user.Password).then((status) => {
-                    if (status) {
-                        console.log("Login success");
-                        response.user = user
-                        response.status = true
-                        resolve(response)
-                    } else {
-                        console.log("login failed")
-                        resolve({ status: false })
-                    }
-                })
-            } else {
-                console.log("user not found")
-
+            try {
+                let response = {}
+                let user = await db.get().collection(collection.USER_COLLECTION).findOne({ Email: userData.Email })
+                if (user) {
+                    bcrypt.compare(userData.Password, user.Password).then((status) => {
+                        if (status) {
+                            console.log("Login success");
+                            response.user = user
+                            response.status = true
+                            resolve(response)
+                        } else {
+                            console.log("login failed: invalid password")
+                            resolve({ status: false, notFound: false, message: "Invalid email or password." })
+                        }
+                    }).catch(err => {
+                        reject(err)
+                    })
+                } else {
+                    console.log("user not found")
+                    resolve({ status: false, notFound: true, message: "User not found! Please check your details or create a new account." })
+                }
+            } catch (err) {
+                console.error("doLogin error:", err);
+                reject(err);
             }
         })
     },
@@ -185,7 +191,26 @@ module.exports = {
                 {
                     $group: {
                         _id: null,
-                        total: { $sum: { $multiply: [{ $toInt: "$quantity" }, { $toDouble: "$product.price" }] } }
+                        total: { 
+                            $sum: { 
+                                $multiply: [
+                                    { $toInt: "$quantity" }, 
+                                    { 
+                                        $cond: {
+                                            if: { 
+                                                $and: [
+                                                    { $ne: ["$product.offerPrice", null] },
+                                                    { $gt: [{ $toDouble: "$product.offerPrice" }, 0] },
+                                                    { $lt: [{ $toDouble: "$product.offerPrice" }, { $toDouble: "$product.price" }] }
+                                                ]
+                                            },
+                                            then: { $toDouble: "$product.offerPrice" },
+                                            else: { $toDouble: "$product.price" }
+                                        }
+                                    }
+                                ] 
+                            } 
+                        }
                     }
                 }
 
@@ -212,6 +237,7 @@ module.exports = {
                 totalAmount: total,
                 status: status,
                 date: new Date().toLocaleString(),
+                createdAt: new Date(),
                 adminViewed: false
             }
 

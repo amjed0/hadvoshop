@@ -1,0 +1,393 @@
+<section class="admin-categories-section py-4 bg-light min-vh-100">
+  <div class="container-fluid px-lg-4">
+
+    <!-- Top Navigation Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div>
+        <h2 class="fw-bold text-dark mb-1">Product Categories</h2>
+        <p class="text-muted small mb-0">Organize your store catalog, edit category titles, and upload brand imagery.</p>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <a href="/admin/dashboard" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2">
+          &larr; Back to Dashboard
+        </a>
+        <button type="button" class="btn btn-sm btn-dark rounded-pill px-4 py-2 d-flex align-items-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span class="fw-semibold">New Category</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Feedback Toast/Banner -->
+    <div id="catAlert" class="alert alert-success d-none alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+      <span id="catAlertText">Action completed successfully.</span>
+      <button type="button" class="btn-close" onclick="document.getElementById('catAlert').classList.add('d-none')"></button>
+    </div>
+
+    <!-- Categories Table Card -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
+      <div class="card-header bg-white border-0 py-3 px-4 d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="fw-bold text-dark mb-0">All Categories ({{categories.length}})</h5>
+          <span class="text-muted small">Manage live categories visible across the storefront</span>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-muted small text-uppercase letter-spacing-1">
+            <tr>
+              <th class="ps-4 py-3" style="width: 100px;">Image</th>
+              <th class="py-3">Category Name</th>
+              <th class="py-3">Description</th>
+              <th class="py-3 text-center" style="width: 150px;">Products</th>
+              <th class="text-end pe-4 py-3" style="width: 200px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if categories.length}}
+              {{#each categories}}
+              <tr id="cat-row-{{this._id}}">
+                <!-- Thumbnail Image -->
+                <td class="ps-4">
+                  <div class="rounded-3 border overflow-hidden d-flex align-items-center justify-content-center bg-light" style="width: 64px; height: 64px;">
+                    {{#if this.image}}
+                      <img src="{{this.image}}" alt="{{this.name}}" class="w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='/images/cat_clothing.png';">
+                    {{else}}
+                      <div class="text-muted small fw-bold">NO IMG</div>
+                    {{/if}}
+                  </div>
+                </td>
+
+                <!-- Category Name -->
+                <td>
+                  <div class="fw-bold text-dark fs-6">{{this.name}}</div>
+                  <a href="/category/{{this.name}}" target="_blank" class="text-decoration-none small text-primary d-inline-flex align-items-center gap-1">
+                    <span>View on store</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                  </a>
+                </td>
+
+                <!-- Description -->
+                <td>
+                  <div class="text-muted small" style="max-width: 400px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    {{#if this.description}}
+                      {{this.description}}
+                    {{else}}
+                      <span class="text-secondary fst-italic">No description provided</span>
+                    {{/if}}
+                  </div>
+                </td>
+
+                <!-- Product Count -->
+                <td class="text-center">
+                  <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-1 fs-8 fw-semibold">
+                    {{#if this.productCount}}{{this.productCount}}{{else}}0{{/if}} Products
+                  </span>
+                </td>
+
+                <!-- Actions: Edit & Delete -->
+                <td class="text-end pe-4 text-nowrap">
+                  <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1 me-1 btn-edit-category"
+                          data-id="{{this._id}}"
+                          data-name="{{this.name}}"
+                          data-image="{{this.image}}">
+                    <span class="d-none cat-desc-content">{{this.description}}</span>
+                    ✏️ Edit
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 btn-delete-category"
+                          data-id="{{this._id}}"
+                          data-name="{{this.name}}"
+                          data-products="{{#if this.productCount}}{{this.productCount}}{{else}}0{{/if}}">
+                    🗑️ Delete
+                  </button>
+                </td>
+              </tr>
+              {{/each}}
+            {{else}}
+              <tr>
+                <td colspan="5" class="text-center py-5">
+                  <div class="text-muted mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                  </div>
+                  <h5 class="fw-bold mb-1">No Categories Found</h5>
+                  <p class="text-muted small mb-3">Add your first category to start organizing your catalog.</p>
+                  <button type="button" class="btn btn-sm btn-dark rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                    + Add New Category
+                  </button>
+                </td>
+              </tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= ADD CATEGORY MODAL ================= -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg p-3">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="addCategoryModalLabel">Add New Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="addCatForm" action="/admin/add-category" method="POST" enctype="multipart/form-data">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small text-muted fw-medium">Category Name <span class="text-danger">*</span></label>
+            <input type="text" id="addCatName" name="name" class="form-control rounded-3" placeholder="e.g. Shoes, Watches, Bags" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small text-muted fw-medium">Short Description</label>
+            <textarea id="addCatDesc" name="description" class="form-control rounded-3" rows="2" placeholder="Brief description of this collection..."></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small text-muted fw-medium">Category Cover Image</label>
+            <input type="file" id="addCatImg" name="categoryImage" class="form-control rounded-3" accept="image/*" onchange="previewAddCatImg(event)">
+            <div class="mt-2 text-center">
+              <img id="addCatImgPreview" src="#" alt="Preview" class="img-thumbnail rounded-3 d-none" style="max-height: 120px; object-fit: cover;">
+            </div>
+            <div class="form-text small">This image will be showcased on the homepage category cards.</div>
+          </div>
+          <div id="addModalError" class="alert alert-danger py-2 small d-none"></div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" id="saveAddCatBtn" class="btn btn-dark rounded-pill px-4">Create Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ================= EDIT CATEGORY MODAL ================= -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg p-3">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="editCategoryModalLabel">Edit Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="editCatForm" method="POST" enctype="multipart/form-data">
+        <input type="hidden" id="editCatId" name="catId">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small text-muted fw-medium">Category Name <span class="text-danger">*</span></label>
+            <input type="text" id="editCatName" name="name" class="form-control rounded-3" required>
+            <div class="form-text small">Renaming will automatically update all existing products in this category.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small text-muted fw-medium">Short Description</label>
+            <textarea id="editCatDesc" name="description" class="form-control rounded-3" rows="2"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small text-muted fw-medium">Change Category Image (Optional)</label>
+            <input type="file" id="editCatImg" name="categoryImage" class="form-control rounded-3" accept="image/*" onchange="previewEditCatImg(event)">
+            <div class="mt-2 text-center">
+              <img id="editCatImgPreview" src="#" alt="Preview" class="img-thumbnail rounded-3" style="max-height: 120px; object-fit: cover;">
+            </div>
+          </div>
+          <div id="editModalError" class="alert alert-danger py-2 small d-none"></div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" id="saveEditCatBtn" class="btn btn-dark rounded-pill px-4">Update Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ================= DELETE CONFIRMATION MODAL ================= -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg p-3">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold text-danger d-flex align-items-center gap-2" id="deleteCategoryModalLabel">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          Delete Category
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body py-3">
+        <p class="mb-2">Are you sure you want to delete category <strong id="deleteCatNameSpan" class="text-dark"></strong>?</p>
+        <div id="deleteWarningAlert" class="alert alert-warning py-2 small d-none">
+          ⚠️ <strong>Note:</strong> This category contains <span id="deleteProductCountSpan">0</span> active products.
+        </div>
+        <p class="text-muted small mb-0">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+        <a id="confirmDeleteBtn" href="#" class="btn btn-danger rounded-pill px-4">Delete Category</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function previewAddCatImg(event) {
+    const preview = document.getElementById('addCatImgPreview');
+    if (event.target.files && event.target.files[0]) {
+      preview.src = URL.createObjectURL(event.target.files[0]);
+      preview.classList.remove('d-none');
+    }
+  }
+
+  function previewEditCatImg(event) {
+    const preview = document.getElementById('editCatImgPreview');
+    if (event.target.files && event.target.files[0]) {
+      preview.src = URL.createObjectURL(event.target.files[0]);
+      preview.classList.remove('d-none');
+    }
+  }
+
+  // Handle Edit Category button clicks via event listener
+  document.addEventListener('DOMContentLoaded', () => {
+    // Edit buttons
+    document.querySelectorAll('.btn-edit-category').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const name = btn.getAttribute('data-name');
+        const image = btn.getAttribute('data-image');
+        const descEl = btn.querySelector('.cat-desc-content');
+        const description = descEl ? descEl.textContent.trim() : '';
+
+        const form = document.getElementById('editCatForm');
+        form.action = '/admin/edit-category/' + id;
+
+        document.getElementById('editCatId').value = id;
+        document.getElementById('editCatName').value = name;
+        document.getElementById('editCatDesc').value = description;
+
+        const preview = document.getElementById('editCatImgPreview');
+        if (image && image.trim() !== '') {
+          preview.src = image;
+          preview.classList.remove('d-none');
+        } else {
+          preview.src = '/images/cat_clothing.png';
+        }
+
+        document.getElementById('editModalError').classList.add('d-none');
+
+        const modalEl = document.getElementById('editCategoryModal');
+        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        modal.show();
+      });
+    });
+
+    // Delete buttons
+    document.querySelectorAll('.btn-delete-category').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const name = btn.getAttribute('data-name');
+        const products = parseInt(btn.getAttribute('data-products') || '0', 10);
+
+        document.getElementById('deleteCatNameSpan').textContent = name;
+        document.getElementById('confirmDeleteBtn').href = '/admin/delete-category/' + id;
+
+        const warningAlert = document.getElementById('deleteWarningAlert');
+        const productCountSpan = document.getElementById('deleteProductCountSpan');
+        if (products > 0) {
+          productCountSpan.textContent = products;
+          warningAlert.classList.remove('d-none');
+        } else {
+          warningAlert.classList.add('d-none');
+        }
+
+        const modalEl = document.getElementById('deleteCategoryModal');
+        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        modal.show();
+      });
+    });
+
+    // Edit form submission via AJAX with fallback
+    const editForm = document.getElementById('editCatForm');
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('saveEditCatBtn');
+      const errorEl = document.getElementById('editModalError');
+      const catId = document.getElementById('editCatId').value;
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+      errorEl.classList.add('d-none');
+
+      try {
+        const formData = new FormData(editForm);
+        formData.append('isAjax', 'true');
+
+        const res = await fetch('/admin/edit-category/' + catId, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json'
+          },
+          body: formData
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          window.location.reload();
+        } else {
+          errorEl.textContent = data.error || 'Failed to update category.';
+          errorEl.classList.remove('d-none');
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Update Category';
+        }
+      } catch (err) {
+        // Fallback to regular form submission if fetch/json fails
+        console.warn('AJAX update failed, submitting via standard POST', err);
+        editForm.submit();
+      }
+    });
+
+    // Add form submission via AJAX with fallback
+    const addForm = document.getElementById('addCatForm');
+    addForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('saveAddCatBtn');
+      const errorEl = document.getElementById('addModalError');
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+      errorEl.classList.add('d-none');
+
+      try {
+        const formData = new FormData(addForm);
+        formData.append('isAjax', 'true');
+
+        const res = await fetch('/admin/add-category', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json'
+          },
+          body: formData
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          window.location.reload();
+        } else {
+          errorEl.textContent = data.error || 'Failed to add category.';
+          errorEl.classList.remove('d-none');
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Create Category';
+        }
+      } catch (err) {
+        console.warn('AJAX add failed, submitting via standard POST', err);
+        addForm.submit();
+      }
+    });
+  });
+</script>
