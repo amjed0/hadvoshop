@@ -21,8 +21,9 @@ if (isConfigured) {
 
 /**
  * Upload an uploaded file object (from express-fileupload)
- * If Cloudinary is configured, uploads directly to Cloudinary CDN (works on Vercel).
- * If not configured, gracefully falls back to local storage in ./public/<folder>/<filename>
+ * 1. If Cloudinary is configured -> uploads directly to Cloudinary CDN (Best for Vercel)
+ * 2. If running on Vercel without Cloudinary -> converts to Base64 data URI (stored in MongoDB, 0 disk writes)
+ * 3. Local development -> saves to ./public/<folder>/<filename>
  */
 const uploadImage = async (file, folder = 'products', filename = null) => {
   if (!file) return null;
@@ -57,18 +58,37 @@ const uploadImage = async (file, folder = 'products', filename = null) => {
     });
   }
 
-  // 2. Local fallback if Cloudinary is not configured yet
-  const targetName = filename || (Date.now() + '.jpg');
-  const relPath = `/${folder}/${targetName}`;
-  const fullDir = path.join(__dirname, `../public/${folder}`);
-  
-  if (!fs.existsSync(fullDir)) {
-    fs.mkdirSync(fullDir, { recursive: true });
+  // 2. If on Vercel or read-only environment without Cloudinary, use Base64 Data URI
+  if (process.env.VERCEL) {
+    console.log('ℹ️ Vercel detected without Cloudinary: saving image as Base64 in MongoDB');
+    if (file.data) {
+      const mime = file.mimetype || 'image/jpeg';
+      return `data:${mime};base64,${file.data.toString('base64')}`;
+    }
   }
 
-  const fullPath = path.join(fullDir, targetName);
-  await file.mv(fullPath);
-  return relPath;
+  // 3. Local fallback for local development
+  try {
+    const targetName = filename || (Date.now() + '.jpg');
+    const relPath = `/${folder}/${targetName}`;
+    const fullDir = path.join(__dirname, `../public/${folder}`);
+    
+    if (!fs.existsSync(fullDir)) {
+      fs.mkdirSync(fullDir, { recursive: true });
+    }
+
+    const fullPath = path.join(fullDir, targetName);
+    await file.mv(fullPath);
+    return relPath;
+  } catch (fsErr) {
+    // If disk write fails due to read-only filesystem, convert to Base64
+    console.warn('⚠️ Disk write failed, falling back to Base64 Data URI:', fsErr.message);
+    if (file.data) {
+      const mime = file.mimetype || 'image/jpeg';
+      return `data:${mime};base64,${file.data.toString('base64')}`;
+    }
+    throw fsErr;
+  }
 };
 
 module.exports = {
