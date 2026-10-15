@@ -442,5 +442,50 @@ module.exports = {
         resolve({ avg: 0, count: 0 });
       }
     });
+  },
+
+  getReviewById: (reviewId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const review = await db.get().collection(collection.REVIEW_COLLECTION).findOne({ _id: new ObjectId(reviewId) });
+        resolve(review);
+      } catch (err) {
+        console.error('Error fetching review:', err);
+        resolve(null);
+      }
+    });
+  },
+
+  updateReview: (reviewId, updateData) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const setFields = {};
+        if (updateData.rating !== undefined) setFields.rating = parseInt(updateData.rating);
+        if (updateData.comment !== undefined) setFields.comment = updateData.comment.trim();
+        if (updateData.userName !== undefined) setFields.userName = updateData.userName.trim();
+        setFields.updatedAt = new Date();
+
+        await db.get().collection(collection.REVIEW_COLLECTION).updateOne(
+          { _id: new ObjectId(reviewId) },
+          { $set: setFields }
+        );
+        resolve({ status: true });
+      } catch (err) {
+        console.error('Error updating review:', err);
+        reject(err);
+      }
+    });
+  },
+
+  deleteReview: (reviewId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await db.get().collection(collection.REVIEW_COLLECTION).deleteOne({ _id: new ObjectId(reviewId) });
+        resolve({ status: true });
+      } catch (err) {
+        console.error('Error deleting review:', err);
+        reject(err);
+      }
+    });
   }
 }

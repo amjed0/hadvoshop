@@ -1,14 +1,20 @@
-<section class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+<section class="container-fluid px-lg-5 py-5">
+    <div class="row g-4">
 
-            <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5 bg-white">
+        <!-- Left Column: Product Edit Form -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5 bg-white h-100">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h3 class="fw-bold mb-1">Edit Product</h3>
-                        <p class="text-muted small mb-0">Update product specifications and pricing</p>
+                        <p class="text-muted small mb-0">Update product specifications, gallery images, and pricing</p>
                     </div>
-                    <a href="/admin/dashboard" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Back</a>
+                    <div class="d-flex gap-2">
+                        <a href="/product/{{product._id}}" target="_blank" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                            View in Store ↗
+                        </a>
+                        <a href="/admin/dashboard" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Back</a>
+                    </div>
                 </div>
 
                 <div id="catFeedback" class="alert alert-success rounded-3 mb-4 d-none"></div>
@@ -59,7 +65,7 @@
                     <div class="mb-3">
                         <label class="form-label fw-medium small text-muted">Main Product Image</label>
                         <div class="mb-2">
-                            <img src="{{#if product.image}}{{product.image}}{{else}}/product-images/{{product._id}}.jpg{{/if}}" id="imgView" class="img-thumbnail rounded-3 shadow-2xs border" style="max-height: 120px; object-fit: contain;" onerror="this.onerror=null;this.src='/images/hadvo_banner.png';">
+                            <img src="{{#if product.image}}{{product.image}}{{else}}/product-images/{{product._id}}.jpg{{/if}}" id="imgView" class="img-thumbnail rounded-3 shadow-2xs border" style="max-height: 120px; object-fit: contain; background: #f8f9fa;" onerror="this.onerror=null;this.src='/images/hadvo_banner.png';">
                         </div>
                         <input type="file" name="image" class="form-control rounded-3" accept="image/*" onchange="viewImage(event)">
                         <div class="form-text small">Upload a new file only if you want to replace the main image.</div>
@@ -72,7 +78,7 @@
                         </div>
                         {{#if product.images.length}}
                         <div class="mb-2">
-                            <span class="small text-muted d-block mb-1">Current Extra Photos:</span>
+                            <span class="small text-muted d-block mb-1">Current Gallery Photos:</span>
                             <div class="d-flex flex-wrap gap-2">
                                 {{#each product.images}}
                                 <img src="{{this}}" class="img-thumbnail rounded-3 border" style="width: 60px; height: 60px; object-fit: contain; background: #f8f9fa;">
@@ -81,17 +87,140 @@
                         </div>
                         {{/if}}
                         <input type="file" name="images" class="form-control rounded-3" accept="image/*" multiple onchange="viewExtraImages(event)">
-                        <div class="form-text small">Add more photos to product gallery (Hold Ctrl/Cmd to select multiple).</div>
+                        <div class="form-text small">Upload more photos to product gallery (Hold Ctrl/Cmd to select multiple).</div>
                         <div id="extraImagesPreviewContainer" class="d-flex flex-wrap gap-2 mt-2"></div>
                     </div>
 
                     <button type="submit" class="btn btn-dark btn-lg w-100 rounded-3 fw-semibold shadow-sm">Save Changes</button>
                 </form>
             </div>
-
         </div>
+
+        <!-- Right Column: Ratings & Reviews Management -->
+        <div class="col-lg-5" id="reviewsManagementSection">
+            <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h4 class="fw-bold mb-1">Reviews & Ratings</h4>
+                        <p class="text-muted small mb-0">Moderate and manage customer feedback</p>
+                    </div>
+                    <span class="badge bg-dark-subtle text-dark rounded-pill px-3 py-1 fw-semibold fs-7" id="reviewCountBadge">
+                        {{#if reviews.length}}{{reviews.length}}{{else}}0{{/if}} {{#if (eq reviews.length 1)}}Review{{else}}Reviews{{/if}}
+                    </span>
+                </div>
+
+                <!-- Rating Score Summary -->
+                <div class="p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between mb-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="fs-2 fw-bold text-dark" id="avgRatingDisplay">
+                            {{#if rating.count}}{{rating.avg}}{{else}}0.0{{/if}}
+                        </div>
+                        <div>
+                            <div class="text-warning fs-6">
+                                ★★★★★
+                            </div>
+                            <div class="text-muted small">Average customer rating</div>
+                        </div>
+                    </div>
+                    <div class="text-end text-muted small">
+                        Product ID:<br>
+                        <code>{{product._id}}</code>
+                    </div>
+                </div>
+
+                <div id="reviewFeedback" class="alert alert-success py-2 small d-none"></div>
+
+                <!-- Reviews List Container -->
+                <div class="reviews-admin-list" id="adminReviewsList">
+                    {{#if reviews.length}}
+                        {{#each reviews}}
+                        <div class="p-3 mb-3 bg-white border rounded-3 shadow-2xs position-relative review-item" id="review-card-{{this._id}}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-dark review-username-text">{{this.userName}}</h6>
+                                    <div class="text-warning small review-rating-stars">
+                                        ★ {{this.rating}} / 5
+                                    </div>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-2 py-0 me-1" 
+                                        onclick="openEditReviewModal('{{this._id}}', '{{this.userName}}', '{{this.rating}}', '{{this.comment}}')"
+                                        title="Edit Review">
+                                        ✏️ Edit
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2 py-0" 
+                                        onclick="confirmDeleteReview('{{this._id}}', '{{../product._id}}')"
+                                        title="Delete Review">
+                                        🗑️ Delete
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-muted small mb-0 review-comment-text" style="white-space: pre-line;">{{this.comment}}</p>
+                        </div>
+                        {{/each}}
+                    {{else}}
+                        <!-- Empty State -->
+                        <div class="text-center py-5 text-muted border border-dashed rounded-4" id="emptyReviewsPlaceholder">
+                            <div class="fs-1 mb-2">💬</div>
+                            <h6 class="fw-bold mb-1 text-dark">No Reviews Yet</h6>
+                            <p class="small mb-0">Customer ratings and reviews submitted for this product will appear here.</p>
+                        </div>
+                    {{/if}}
+                </div>
+
+            </div>
+        </div>
+
     </div>
 </section>
+
+<!-- Edit Review Modal -->
+<div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <h5 class="modal-title fw-bold" id="editReviewModalLabel">Edit Customer Review</h5>
+                    <p class="text-muted small mb-0">Modify rating score, reviewer name, or review comment.</p>
+                </div>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editReviewForm" onsubmit="submitEditReview(event)">
+                <input type="hidden" id="editReviewId" name="reviewId">
+                <input type="hidden" id="editReviewProductId" name="productId" value="{{product._id}}">
+
+                <div class="modal-body py-3">
+                    <div class="mb-3">
+                        <label class="form-label fw-medium small text-muted">Reviewer Name *</label>
+                        <input type="text" id="editReviewUserName" name="userName" class="form-control rounded-3" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-medium small text-muted">Rating *</label>
+                        <select id="editReviewRating" name="rating" class="form-select rounded-3" required>
+                            <option value="5">★★★★★ (5 Stars - Excellent)</option>
+                            <option value="4">★★★★☆ (4 Stars - Very Good)</option>
+                            <option value="3">★★★☆☆ (3 Stars - Average)</option>
+                            <option value="2">★★☆☆☆ (2 Stars - Poor)</option>
+                            <option value="1">★☆☆☆☆ (1 Star - Terrible)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-medium small text-muted">Review Comment *</label>
+                        <textarea id="editReviewComment" name="comment" class="form-control rounded-3" rows="4" required></textarea>
+                    </div>
+
+                    <div id="editReviewError" class="alert alert-danger py-2 small d-none"></div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" id="saveReviewBtn" class="btn btn-dark rounded-pill px-4">Update Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- Add Category Modal with Image Upload -->
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
@@ -185,7 +314,6 @@
 
             if (res.ok && data.category) {
                 const select = document.getElementById('categorySelect');
-                
                 let exists = false;
                 for (let i = 0; i < select.options.length; i++) {
                     if (select.options[i].value.toLowerCase() === data.category.name.toLowerCase()) {
@@ -225,6 +353,127 @@
         } finally {
             saveBtn.disabled = false;
             saveBtn.textContent = 'Save Category';
+        }
+    }
+
+    // ==========================================
+    // REVIEWS MANAGEMENT (EDIT & DELETE)
+    // ==========================================
+    function openEditReviewModal(id, userName, rating, comment) {
+        document.getElementById('editReviewId').value = id;
+        document.getElementById('editReviewUserName').value = userName;
+        document.getElementById('editReviewRating').value = rating;
+        document.getElementById('editReviewComment').value = comment;
+        document.getElementById('editReviewError').classList.add('d-none');
+
+        const modalEl = document.getElementById('editReviewModal');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    }
+
+    async function submitEditReview(event) {
+        event.preventDefault();
+        const form = document.getElementById('editReviewForm');
+        const reviewId = document.getElementById('editReviewId').value;
+        const productId = document.getElementById('editReviewProductId').value;
+        const userName = document.getElementById('editReviewUserName').value;
+        const rating = document.getElementById('editReviewRating').value;
+        const comment = document.getElementById('editReviewComment').value;
+        const saveBtn = document.getElementById('saveReviewBtn');
+        const errorEl = document.getElementById('editReviewError');
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Updating...';
+        errorEl.classList.add('d-none');
+
+        try {
+            const res = await fetch('/admin/edit-review/' + reviewId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reviewId, productId, userName, rating, comment })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                // Update review item card in DOM
+                const card = document.getElementById('review-card-' + reviewId);
+                if (card) {
+                    card.querySelector('.review-username-text').textContent = userName;
+                    card.querySelector('.review-rating-stars').textContent = `★ ${rating} / 5`;
+                    card.querySelector('.review-comment-text').textContent = comment;
+                }
+
+                const modalEl = document.getElementById('editReviewModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) modalInstance.hide();
+
+                const feedback = document.getElementById('reviewFeedback');
+                feedback.textContent = '✅ Review updated successfully!';
+                feedback.classList.remove('d-none');
+                setTimeout(() => feedback.classList.add('d-none'), 4000);
+            } else {
+                errorEl.textContent = data.error || 'Failed to update review.';
+                errorEl.classList.remove('d-none');
+            }
+        } catch (err) {
+            console.error(err);
+            errorEl.textContent = 'Server error while updating review.';
+            errorEl.classList.remove('d-none');
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Update Review';
+        }
+    }
+
+    async function confirmDeleteReview(reviewId, productId) {
+        if (!confirm('Are you sure you want to permanently delete this customer review?')) {
+            return;
+        }
+
+        try {
+            const res = await fetch('/admin/delete-review/' + reviewId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                const card = document.getElementById('review-card-' + reviewId);
+                if (card) {
+                    card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        card.remove();
+                        const remaining = document.querySelectorAll('.review-item').length;
+                        const badge = document.getElementById('reviewCountBadge');
+                        if (badge) badge.textContent = `${remaining} ${remaining === 1 ? 'Review' : 'Reviews'}`;
+                        if (remaining === 0) {
+                            const list = document.getElementById('adminReviewsList');
+                            list.innerHTML = `
+                                <div class="text-center py-5 text-muted border border-dashed rounded-4" id="emptyReviewsPlaceholder">
+                                    <div class="fs-1 mb-2">💬</div>
+                                    <h6 class="fw-bold mb-1 text-dark">No Reviews Yet</h6>
+                                    <p class="small mb-0">Customer ratings and reviews submitted for this product will appear here.</p>
+                                </div>
+                            `;
+                            const avgDisplay = document.getElementById('avgRatingDisplay');
+                            if (avgDisplay) avgDisplay.textContent = '0.0';
+                        }
+                    }, 300);
+                }
+
+                const feedback = document.getElementById('reviewFeedback');
+                feedback.textContent = '🗑️ Review deleted.';
+                feedback.classList.remove('d-none');
+                setTimeout(() => feedback.classList.add('d-none'), 4000);
+            } else {
+                alert('Failed to delete review: ' + (data.error || 'Server error'));
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Error deleting review.');
         }
     }
 </script>

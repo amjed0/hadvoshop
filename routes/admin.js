@@ -247,7 +247,16 @@ router.get('/delete-product/:id', verifyLogin, (req, res) => {
 router.get('/edit-product/:id', verifyLogin, attachOrderCount, async (req, res) => {
   let product = await productHelpers.getProductDetails(req.params.id);
   let categories = await productHelpers.getAllCategories();
-  res.render('admin/edit-product', { admin: true, product, categories, newOrderCount: res.locals.newOrderCount });
+  let reviews = await productHelpers.getProductReviews(req.params.id);
+  let rating = await productHelpers.getProductAverageRating(req.params.id);
+  res.render('admin/edit-product', {
+    admin: true,
+    product,
+    categories,
+    reviews,
+    rating,
+    newOrderCount: res.locals.newOrderCount
+  });
   console.log(product, "✅ Edit Product Page");
 });
 
@@ -274,6 +283,53 @@ router.post('/edit-product/:id', verifyLogin, async (req, res) => {
   } catch (err) {
     console.error("❌ Edit Product Error:", err);
     res.redirect('/admin/dashboard');
+  }
+});
+
+// Get single review details (for Edit Modal)
+router.get('/get-review/:id', verifyLogin, async (req, res) => {
+  try {
+    const review = await productHelpers.getReviewById(req.params.id);
+    if (!review) return res.status(404).json({ error: 'Review not found' });
+    res.json({ success: true, review });
+  } catch (err) {
+    console.error('Error fetching review:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Edit Review
+router.post('/edit-review/:id', verifyLogin, async (req, res) => {
+  try {
+    const { rating, comment, userName, productId } = req.body;
+    await productHelpers.updateReview(req.params.id, { rating, comment, userName });
+    if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
+      return res.json({ success: true });
+    }
+    res.redirect('/admin/edit-product/' + productId);
+  } catch (err) {
+    console.error('Error editing review:', err);
+    if (req.xhr) return res.status(500).json({ error: err.message });
+    res.redirect('back');
+  }
+});
+
+// Delete Review
+router.all('/delete-review/:id', verifyLogin, async (req, res) => {
+  try {
+    const productId = req.body?.productId || req.query?.productId;
+    await productHelpers.deleteReview(req.params.id);
+    if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
+      return res.json({ success: true });
+    }
+    if (productId) {
+      return res.redirect('/admin/edit-product/' + productId);
+    }
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Error deleting review:', err);
+    if (req.xhr) return res.status(500).json({ error: err.message });
+    res.redirect('back');
   }
 });
 
