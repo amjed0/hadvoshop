@@ -1,91 +1,431 @@
-<section>
+<section class="cart-section">
   <div class="container">
-    <table class="table mt-5">
-      <thead>
-        <tr>
-          <th scope="col">Item</th>
-          <th scope="col">Title</th>
-          <th scope="col">Quantity</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each products}}
-        <tr>
 
-          <td><img style="width: 70px; height:70px; object-fit: cover;" class="rounded-3 border" src="{{#if this.product.image}}{{this.product.image}}{{else}}/product-images/{{this.product._id}}.jpg{{/if}}" alt="" onerror="this.onerror=null;this.src='/images/hadvo_banner.png';">
-          </td>
-          <td>
-            {{#if this.product.offerPrice}}
-              <span class="fw-bold text-success">₹{{this.product.offerPrice}}</span>
-              <del class="text-muted small ms-1">₹{{this.product.price}}</del>
-            {{else}}
-              ₹{{this.product.price}}
-            {{/if}}
-          </td>
-
-          <td>
-            <button class="cart-item-count mr-3" onclick="changeQuantity('{{this._id}}','{{this.product._id}}',-1)"
-              id="decrement-{{this._id}}" {{#if (eq this.quantity 1)}}disabled{{/if}}>
-              -
-            </button>
-            <span id="qty-{{this._id}}">{{this.quantity}}</span>
-            <button class="cart-item-count ml-3" onclick="changeQuantity('{{this._id}}','{{this.product._id}}',1)">
-              +
-            </button>
-          </td>
-
-          <td>
-            <button class="btn btn-danger"
-              onclick="confirmRemove('{{this._id}}', '{{this.product._id}}')">Remove</button>
-          </td>
-
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    <hr>
-    <div class="float-right pr-5">
-      <h3 class="float-left mr-5 ">Total:₹<span id="total">{{totalValue}}</span></h3><br>
-      <a href="/place-order" class="btn btn-success mt-3 mb-2" style="width:100%;"><b>Place Order</b></a>
+    <!-- Header -->
+    <div class="cart-page-header">
+      <span class="cart-page-tag">YOUR BAG</span>
+      <h1 class="cart-page-title">Shopping Cart</h1>
     </div>
+
+    {{#if products.length}}
+    <div class="row g-5">
+
+      <!-- Cart Items -->
+      <div class="col-lg-8">
+        <div class="cart-items-list">
+          {{#each products}}
+          <div class="cart-item-card" id="cart-row-{{this._id}}">
+            <!-- Product Image -->
+            <div class="cart-item-img">
+              <img
+                src="{{#if this.product.image}}{{this.product.image}}{{else}}/product-images/{{this.product._id}}.jpg{{/if}}"
+                alt="{{this.product.name}}"
+                onerror="this.onerror=null;this.src='/images/hadvo_banner.png';"
+              >
+            </div>
+
+            <!-- Product Info -->
+            <div class="cart-item-info">
+              <span class="cart-item-category">{{this.product.category}}</span>
+              <h4 class="cart-item-name">{{this.product.name}}</h4>
+              <div class="cart-item-price">
+                {{#if this.product.offerPrice}}
+                  <span class="price-final">₹{{this.product.offerPrice}}</span>
+                  <del class="price-original">₹{{this.product.price}}</del>
+                {{else}}
+                  <span class="price-final">₹{{this.product.price}}</span>
+                {{/if}}
+              </div>
+            </div>
+
+            <!-- Quantity + Remove -->
+            <div class="cart-item-actions">
+              <div class="qty-control">
+                <button class="qty-btn" onclick="changeQuantity('{{this._id}}','{{this.product._id}}',-1)" id="decrement-{{this._id}}" {{#if (eq this.quantity 1)}}disabled{{/if}}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                </button>
+                <span class="qty-value" id="qty-{{this._id}}">{{this.quantity}}</span>
+                <button class="qty-btn" onclick="changeQuantity('{{this._id}}','{{this.product._id}}',1)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                </button>
+              </div>
+              <button class="cart-remove-btn" onclick="confirmRemove('{{this._id}}', '{{this.product._id}}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                Remove
+              </button>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+
+        <!-- Continue Shopping -->
+        <a href="/" class="cart-back-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          Continue Shopping
+        </a>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="col-lg-4">
+        <div class="cart-summary-card">
+          <h2 class="cart-summary-title">Order Summary</h2>
+
+          <div class="cart-summary-row">
+            <span>Subtotal</span>
+            <span>₹<span id="total">{{totalValue}}</span></span>
+          </div>
+          <div class="cart-summary-row">
+            <span>Shipping</span>
+            <span class="summary-free">FREE</span>
+          </div>
+
+          <div class="cart-summary-divider"></div>
+
+          <div class="cart-summary-total">
+            <span>Total</span>
+            <span>₹{{totalValue}}</span>
+          </div>
+
+          <a href="/place-order" class="cart-checkout-btn">
+            Proceed to Checkout
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </a>
+
+          <div class="cart-secure-note">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            SSL Secure Checkout · Free Returns
+          </div>
+        </div>
+      </div>
+
+    </div>
+    {{else}}
+    <!-- Empty Cart -->
+    <div class="cart-empty-state">
+      <div class="cart-empty-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9M9 21a1 1 0 11-2 0 1 1 0 012 0zm10 0a1 1 0 11-2 0 1 1 0 012 0z"/>
+        </svg>
+      </div>
+      <h3>Your cart is empty</h3>
+      <p>Looks like you haven't added anything yet. Explore our collections to find something you love.</p>
+      <a href="/" class="btn-hadvo-primary">Explore Shop</a>
+    </div>
+    {{/if}}
+
   </div>
 </section>
+
+<style>
+  .cart-section {
+    padding: 4rem 0 8rem;
+    background: var(--bg-cream);
+    min-height: 60vh;
+  }
+
+  .cart-page-header {
+    margin-bottom: 3rem;
+  }
+  .cart-page-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--grey-400);
+  }
+  .cart-page-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    margin: 0.3rem 0 0;
+  }
+
+  /* --- Cart Item Card --- */
+  .cart-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .cart-item-card {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--radius);
+    padding: 1.2rem;
+    transition: var(--transition);
+  }
+  .cart-item-card:hover {
+    border-color: var(--grey-400);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .cart-item-img {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--grey-200);
+    background: var(--bg-light);
+  }
+  .cart-item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cart-item-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .cart-item-category {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--grey-400);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  .cart-item-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cart-item-price {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .price-final {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--black);
+  }
+  .price-original {
+    font-size: 0.8rem;
+    color: var(--grey-400);
+  }
+
+  .cart-item-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  /* Quantity control */
+  .qty-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--grey-200);
+    border-radius: 50px;
+    padding: 0.25rem 0.5rem;
+    background: var(--white);
+  }
+  .qty-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: var(--black);
+    transition: var(--transition);
+  }
+  .qty-btn:hover:not(:disabled) {
+    background: var(--grey-100);
+  }
+  .qty-btn:disabled {
+    color: var(--grey-400);
+    cursor: not-allowed;
+  }
+  .qty-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  /* Remove button */
+  .cart-remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--grey-400);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: var(--transition);
+    padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .cart-remove-btn:hover {
+    color: #dc3545;
+  }
+
+  /* Continue shopping link */
+  .cart-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 1.5rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--grey-600);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: var(--transition);
+  }
+  .cart-back-link:hover {
+    color: var(--black);
+  }
+
+  /* --- Summary Card --- */
+  .cart-summary-card {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--radius);
+    padding: 2rem;
+    position: sticky;
+    top: 90px;
+  }
+  .cart-summary-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 1.5rem;
+  }
+  .cart-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+    color: var(--grey-600);
+    margin-bottom: 0.9rem;
+  }
+  .summary-free {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #198754;
+    letter-spacing: 0.5px;
+  }
+  .cart-summary-divider {
+    border-top: 1px solid var(--grey-200);
+    margin: 1.2rem 0;
+  }
+  .cart-summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+  .cart-checkout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    background: var(--black);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: 50px;
+    padding: 0.9rem 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: var(--transition);
+    margin-bottom: 1rem;
+  }
+  .cart-checkout-btn:hover {
+    background: #333;
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .cart-secure-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--grey-400);
+    font-weight: 500;
+  }
+
+  /* --- Empty State --- */
+  .cart-empty-state {
+    text-align: center;
+    padding: 5rem 1rem;
+  }
+  .cart-empty-icon {
+    color: var(--grey-200);
+    margin-bottom: 1.5rem;
+  }
+  .cart-empty-state h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+  }
+  .cart-empty-state p {
+    font-size: 0.92rem;
+    color: var(--grey-600);
+    max-width: 400px;
+    margin: 0 auto 2rem;
+  }
+
+  /* Mobile */
+  @media (max-width: 576px) {
+    .cart-item-card {
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .cart-item-actions {
+      flex-direction: row;
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+</style>
 
 <script>
   function changeQuantity(cartId, proId, count) {
     $.ajax({
       url: '/change-product-quantity',
       method: 'post',
-      data: {
-        cart: cartId,
-        product: proId,
-        count: count
-      },
+      data: { cart: cartId, product: proId, count: count },
       success: (response) => {
-        if (response.status) {
-          location.reload()
-        }
+        if (response.status) { location.reload(); }
       }
-    })
+    });
   }
   function confirmRemove(cartId, proId) {
-    if (confirm('Are you sure you want to remove this product from your cart?')) {
+    if (confirm('Remove this product from your cart?')) {
       $.ajax({
         url: '/remove-cart-product',
         method: 'post',
-        data: {
-          cart: cartId,
-          product: proId
-        },
+        data: { cart: cartId, product: proId },
         success: (response) => {
-          if (response.status) {
-            location.reload();
-          } else {
-            document.getElementById(proId).innerHTML = quantity + count
-          }
+          if (response.status) { location.reload(); }
         }
       });
     }
   }
-
 </script>
