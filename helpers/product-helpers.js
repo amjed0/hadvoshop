@@ -447,7 +447,8 @@ module.exports = {
   getReviewById: (reviewId) => {
     return new Promise(async (resolve, reject) => {
       try {
-        const review = await db.get().collection(collection.REVIEW_COLLECTION).findOne({ _id: new ObjectId(reviewId) });
+        let query = ObjectId.isValid(reviewId) ? { $or: [{ _id: new ObjectId(reviewId) }, { _id: reviewId }] } : { _id: reviewId };
+        const review = await db.get().collection(collection.REVIEW_COLLECTION).findOne(query);
         resolve(review);
       } catch (err) {
         console.error('Error fetching review:', err);
@@ -465,8 +466,9 @@ module.exports = {
         if (updateData.userName !== undefined) setFields.userName = updateData.userName.trim();
         setFields.updatedAt = new Date();
 
+        let query = ObjectId.isValid(reviewId) ? { $or: [{ _id: new ObjectId(reviewId) }, { _id: reviewId }] } : { _id: reviewId };
         await db.get().collection(collection.REVIEW_COLLECTION).updateOne(
-          { _id: new ObjectId(reviewId) },
+          query,
           { $set: setFields }
         );
         resolve({ status: true });
@@ -480,7 +482,8 @@ module.exports = {
   deleteReview: (reviewId) => {
     return new Promise(async (resolve, reject) => {
       try {
-        await db.get().collection(collection.REVIEW_COLLECTION).deleteOne({ _id: new ObjectId(reviewId) });
+        let query = ObjectId.isValid(reviewId) ? { $or: [{ _id: new ObjectId(reviewId) }, { _id: reviewId }] } : { _id: reviewId };
+        await db.get().collection(collection.REVIEW_COLLECTION).deleteOne(query);
         resolve({ status: true });
       } catch (err) {
         console.error('Error deleting review:', err);

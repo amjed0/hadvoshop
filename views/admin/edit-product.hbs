@@ -389,7 +389,11 @@
         try {
             const res = await fetch('/admin/edit-review/' + reviewId, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                 body: JSON.stringify({ reviewId, productId, userName, rating, comment })
             });
             const data = await res.json();
@@ -408,6 +412,7 @@
                 if (modalInstance) modalInstance.hide();
 
                 const feedback = document.getElementById('reviewFeedback');
+                feedback.className = 'alert alert-success py-2 small';
                 feedback.textContent = '✅ Review updated successfully!';
                 feedback.classList.remove('d-none');
                 setTimeout(() => feedback.classList.add('d-none'), 4000);
@@ -416,7 +421,7 @@
                 errorEl.classList.remove('d-none');
             }
         } catch (err) {
-            console.error(err);
+            console.error('Error updating review:', err);
             errorEl.textContent = 'Server error while updating review.';
             errorEl.classList.remove('d-none');
         } finally {
@@ -433,7 +438,11 @@
         try {
             const res = await fetch('/admin/delete-review/' + reviewId, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                 body: JSON.stringify({ productId })
             });
             const data = await res.json();
@@ -441,7 +450,7 @@
             if (res.ok && data.success) {
                 const card = document.getElementById('review-card-' + reviewId);
                 if (card) {
-                    card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    card.style.transition = 'all 0.3s ease';
                     card.style.opacity = '0';
                     card.style.transform = 'scale(0.95)';
                     setTimeout(() => {
@@ -451,13 +460,15 @@
                         if (badge) badge.textContent = `${remaining} ${remaining === 1 ? 'Review' : 'Reviews'}`;
                         if (remaining === 0) {
                             const list = document.getElementById('adminReviewsList');
-                            list.innerHTML = `
-                                <div class="text-center py-5 text-muted border border-dashed rounded-4" id="emptyReviewsPlaceholder">
-                                    <div class="fs-1 mb-2">💬</div>
-                                    <h6 class="fw-bold mb-1 text-dark">No Reviews Yet</h6>
-                                    <p class="small mb-0">Customer ratings and reviews submitted for this product will appear here.</p>
-                                </div>
-                            `;
+                            if (list) {
+                                list.innerHTML = `
+                                    <div class="text-center py-5 text-muted border border-dashed rounded-4" id="emptyReviewsPlaceholder">
+                                        <div class="fs-1 mb-2">💬</div>
+                                        <h6 class="fw-bold mb-1 text-dark">No Reviews Yet</h6>
+                                        <p class="small mb-0">Customer ratings and reviews submitted for this product will appear here.</p>
+                                    </div>
+                                `;
+                            }
                             const avgDisplay = document.getElementById('avgRatingDisplay');
                             if (avgDisplay) avgDisplay.textContent = '0.0';
                         }
@@ -465,14 +476,17 @@
                 }
 
                 const feedback = document.getElementById('reviewFeedback');
-                feedback.textContent = '🗑️ Review deleted.';
-                feedback.classList.remove('d-none');
-                setTimeout(() => feedback.classList.add('d-none'), 4000);
+                if (feedback) {
+                    feedback.className = 'alert alert-success py-2 small';
+                    feedback.textContent = '🗑️ Review deleted successfully!';
+                    feedback.classList.remove('d-none');
+                    setTimeout(() => feedback.classList.add('d-none'), 4000);
+                }
             } else {
                 alert('Failed to delete review: ' + (data.error || 'Server error'));
             }
         } catch (err) {
-            console.error(err);
+            console.error('Delete review error:', err);
             alert('Error deleting review.');
         }
     }

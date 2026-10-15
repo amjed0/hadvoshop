@@ -303,14 +303,21 @@ router.post('/edit-review/:id', verifyLogin, async (req, res) => {
   try {
     const { rating, comment, userName, productId } = req.body;
     await productHelpers.updateReview(req.params.id, { rating, comment, userName });
-    if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
-      return res.json({ success: true });
+    
+    const isJson = req.xhr || 
+      (req.headers['accept'] && req.headers['accept'].includes('application/json')) ||
+      (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
+
+    if (isJson) {
+      return res.json({ success: true, message: 'Review updated successfully' });
     }
-    res.redirect('/admin/edit-product/' + productId);
+    if (productId) {
+      return res.redirect('/admin/edit-product/' + productId);
+    }
+    res.redirect('back');
   } catch (err) {
     console.error('Error editing review:', err);
-    if (req.xhr) return res.status(500).json({ error: err.message });
-    res.redirect('back');
+    return res.status(500).json({ error: err.message || 'Failed to edit review' });
   }
 });
 
@@ -319,8 +326,14 @@ router.all('/delete-review/:id', verifyLogin, async (req, res) => {
   try {
     const productId = req.body?.productId || req.query?.productId;
     await productHelpers.deleteReview(req.params.id);
-    if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
-      return res.json({ success: true });
+    
+    const isJson = req.xhr || 
+      (req.headers['accept'] && req.headers['accept'].includes('application/json')) ||
+      (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) ||
+      req.method === 'DELETE';
+
+    if (isJson) {
+      return res.json({ success: true, message: 'Review deleted successfully' });
     }
     if (productId) {
       return res.redirect('/admin/edit-product/' + productId);
@@ -328,8 +341,7 @@ router.all('/delete-review/:id', verifyLogin, async (req, res) => {
     res.redirect('/admin/dashboard');
   } catch (err) {
     console.error('Error deleting review:', err);
-    if (req.xhr) return res.status(500).json({ error: err.message });
-    res.redirect('back');
+    return res.status(500).json({ error: err.message || 'Failed to delete review' });
   }
 });
 
