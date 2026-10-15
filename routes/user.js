@@ -114,9 +114,9 @@ router.get('/cart', verifyLogin, async (req, res) => {
   if (products.length > 0) {
     totalValue = await userHelpers.getTotalAmount(req.session.user._id)
   }
-
+  let cartCount = await userHelpers.getCartCount(req.session.user._id);
   console.log(products);
-  res.render('user/cart', { products, user: req.session.user, totalValue })
+  res.render('user/cart', { products, user: req.session.user, totalValue, cartCount })
 })
 router.get('/add-to-cart/:id', verifyLogin, (req, res) => {
   console.log("api call");
@@ -148,7 +148,8 @@ router.get('/place-order', verifyLogin, async (req, res) => {
   }
 
   const total = await userHelpers.getTotalAmount(userId);
-  res.render('user/place-order', { total, user: req.session.user });
+  const cartCount = await userHelpers.getCartCount(userId);
+  res.render('user/place-order', { total, user: req.session.user, cartCount });
 });
 
 router.post('/place-order', async (req, res) => {
@@ -176,13 +177,9 @@ router.get('/order-success', verifyLogin, (req, res) => {
   res.render('user/order-success', { user: req.session.user });
 });
 router.get('/orders', verifyLogin, async (req, res) => {
-  // let user = req.session.user
-  // if (user) {
   let orders = await userHelpers.getUserOrders(req.session.user._id)
-  res.render('user/orders', { user: req.session.user, orders })
-  //  } else {
-  //  res.redirect('/login')//-->
-  //   }
+  let cartCount = await userHelpers.getCartCount(req.session.user._id);
+  res.render('user/orders', { user: req.session.user, orders, cartCount })
 })
 router.get('/view-order-products/:id', async (req, res) => {
 

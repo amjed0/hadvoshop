@@ -50,7 +50,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/shopping' }),
-  cookie: { maxAge: 600000 }
+  cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 days
 }))
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store');
