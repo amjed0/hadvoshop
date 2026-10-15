@@ -10,6 +10,8 @@ module.exports = {
       ? parseFloat(product.offerPrice) 
       : null;
     product.createdAt = new Date();
+    // images is an array of additional photo URLs (optional)
+    if (!Array.isArray(product.images)) product.images = [];
 
     db.get().collection(collection.PRODUCT_COLLECTION).insertOne(product).then((data) => {
       callback(data.insertedId);
@@ -51,6 +53,9 @@ module.exports = {
       };
       if (proDetails.image) {
         updateData.image = proDetails.image;
+      }
+      if (proDetails.images && Array.isArray(proDetails.images)) {
+        updateData.images = proDetails.images;
       }
 
       db.get().collection(collection.PRODUCT_COLLECTION)
@@ -381,6 +386,60 @@ module.exports = {
       } catch (err) {
         console.error("Error in getNewOrderCount:", err);
         resolve(0);
+      }
+    });
+  },
+
+  // Reviews
+  getProductReviews: (productId) => {
+    return new Promise(async (resolve) => {
+      try {
+        const reviews = await db.get().collection(collection.REVIEW_COLLECTION)
+          .find({ productId: productId.toString() })
+          .sort({ createdAt: -1 })
+          .toArray();
+        resolve(reviews);
+      } catch (err) {
+        console.error('Error getting reviews:', err);
+        resolve([]);
+      }
+    });
+  },
+
+  addReview: (productId, userId, userName, rating, comment) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const review = {
+          productId: productId.toString(),
+          userId: userId.toString(),
+          userName,
+          rating: parseInt(rating),
+          comment: comment.trim(),
+          createdAt: new Date()
+        };
+        await db.get().collection(collection.REVIEW_COLLECTION).insertOne(review);
+        resolve(review);
+      } catch (err) {
+        console.error('Error adding review:', err);
+        reject(err);
+      }
+    });
+  },
+
+  getProductAverageRating: (productId) => {
+    return new Promise(async (resolve) => {
+      try {
+        const result = await db.get().collection(collection.REVIEW_COLLECTION).aggregate([
+          { $match: { productId: productId.toString() } },
+          { $group: { _id: null, avg: { $avg: '$rating' }, count: { $sum: 1 } } }
+        ]).toArray();
+        if (result.length > 0) {
+          resolve({ avg: parseFloat(result[0].avg.toFixed(1)), count: result[0].count });
+        } else {
+          resolve({ avg: 0, count: 0 });
+        }
+      } catch (err) {
+        resolve({ avg: 0, count: 0 });
       }
     });
   }

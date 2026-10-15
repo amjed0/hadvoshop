@@ -122,9 +122,70 @@ router.get('/add-to-cart/:id', verifyLogin, (req, res) => {
   console.log("api call");
   userHelpers.addToCart(req.params.id, req.session.user._id).then(() => {
     res.json({ status: true })
-
   })
 })
+
+// Product detail page
+router.get('/product/:id', async (req, res, next) => {
+  try {
+    const product = await productHelpers.getProductDetails(req.params.id);
+    if (!product) return res.redirect('/');
+    const reviews = await productHelpers.getProductReviews(req.params.id);
+    const rating = await productHelpers.getProductAverageRating(req.params.id);
+    let cartCount = null;
+    if (req.session.user) {
+      cartCount = await userHelpers.getCartCount(req.session.user._id);
+    }
+    // Build full images list: main image + extra images
+    const allImages = [product.image, ...(product.images || [])].filter(Boolean);
+
+    let relatedProducts = [];
+    if (product.category) {
+      try {
+        const catProducts = await productHelpers.getProductsByCategory(product.category);
+        relatedProducts = (catProducts || [])
+          .filter(p => p._id.toString() !== product._id.toString())
+          .slice(0, 4);
+      } catch (e) {
+        console.error('Error fetching related products:', e);
+      }
+    }
+
+    res.render('user/product-detail', {
+      product,
+      reviews,
+      rating,
+      allImages,
+      relatedProducts,
+      user: req.session.user,
+      cartCount,
+      title: product.name
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Add review (must be logged in)
+router.post('/add-review/:id', verifyLogin, async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    if (!rating || !comment || !comment.trim()) {
+      return res.redirect('/product/' + req.params.id);
+    }
+    await productHelpers.addReview(
+      req.params.id,
+      req.session.user._id,
+      req.session.user.Name || req.session.user.name || 'Customer',
+      rating,
+      comment
+    );
+    res.redirect('/product/' + req.params.id + '#reviews');
+  } catch (err) {
+    res.redirect('/product/' + req.params.id);
+  }
+});
+
 
 router.post('/change-product-quantity', (req, res, next) => {
   userHelpers.changeProductQuantity(req.body).then(() => {

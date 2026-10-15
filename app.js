@@ -29,6 +29,12 @@ const hbs = exphbs.create({
   helpers: {
     eq: function (a, b) {
       return a === b;
+    },
+    gt: function (a, b) {
+      return Number(a) > Number(b);
+    },
+    gte: function (a, b) {
+      return Number(a) >= Number(b);
     }
   },
   runtimeOptions: {

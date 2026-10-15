@@ -1,0 +1,379 @@
+<!-- Product Detail Page -->
+<div class="product-detail-section">
+  <div class="container">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Home</a></li>
+        {{#if product.category}}
+        <li class="breadcrumb-item"><a href="/category/{{product.category}}" class="text-decoration-none text-muted">{{product.category}}</a></li>
+        {{/if}}
+        <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">{{product.name}}</li>
+      </ol>
+    </nav>
+
+    <div class="row g-5">
+
+      <!-- Left Column: Photo Gallery with Image Swapper -->
+      <div class="col-lg-6">
+        <div class="gallery-container">
+          <div class="gallery-main-view" id="mainGalleryView">
+            <img id="mainProductImg" src="{{#if allImages.length}}{{allImages.[0]}}{{else}}{{#if product.image}}{{product.image}}{{else}}/images/hadvo_banner.png{{/if}}{{/if}}" alt="{{product.name}}" onerror="this.onerror=null;this.src='/images/hadvo_banner.png';">
+
+            {{#if (gt allImages.length 1)}}
+            <!-- Prev & Next Swapper Arrows -->
+            <button type="button" class="gallery-nav-btn prev" onclick="swapGallery(-1)" aria-label="Previous image">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+              </svg>
+            </button>
+            <button type="button" class="gallery-nav-btn next" onclick="swapGallery(1)" aria-label="Next image">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+
+            <!-- Counter Badge -->
+            <div class="gallery-badge">
+              <span id="currentImgIdx">1</span> / {{allImages.length}}
+            </div>
+            {{/if}}
+          </div>
+        </div>
+
+        <!-- Thumbnails Swapping Row -->
+        {{#if (gt allImages.length 1)}}
+        <div class="gallery-thumbs-row">
+          {{#each allImages}}
+          <div class="gallery-thumb-item {{#if @first}}active{{/if}}" onclick="setMainImage('{{this}}', {{@index}})" data-idx="{{@index}}">
+            <img src="{{this}}" alt="Product thumbnail {{@index}}" onerror="this.onerror=null;this.src='/images/hadvo_banner.png';">
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+
+      <!-- Right Column: Product Information & Buy Actions -->
+      <div class="col-lg-6">
+        <div class="product-detail-info">
+
+          <a href="/category/{{product.category}}" class="product-detail-tag text-decoration-none">
+            {{product.category}}
+          </a>
+
+          <h1 class="product-detail-title">{{product.name}}</h1>
+
+          <!-- Rating & Reviews Header -->
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="star-rating-display">
+              <span class="star-filled">★</span>
+              <span class="fw-bold text-dark">{{#if rating.count}}{{rating.avg}}{{else}}New{{/if}}</span>
+            </div>
+            <span class="text-muted small">·</span>
+            <a href="#reviews" class="text-muted small text-decoration-underline">
+              {{#if rating.count}}{{rating.count}} Customer {{#if (eq rating.count 1)}}Review{{else}}Reviews{{/if}}{{else}}No reviews yet{{/if}}
+            </a>
+          </div>
+
+          <!-- Price Box -->
+          <div class="price-box">
+            {{#if product.offerPrice}}
+              <span class="price-main">₹{{product.offerPrice}}</span>
+              <del class="price-original">₹{{product.price}}</del>
+              <span class="price-save-badge">Special Offer</span>
+            {{else}}
+              <span class="price-main">₹{{product.price}}</span>
+            {{/if}}
+          </div>
+
+          <!-- Description -->
+          <div class="product-description-wrap mb-4">
+            <h6 class="fw-semibold text-dark mb-2">Description</h6>
+            <p class="text-muted" style="line-height: 1.7; white-space: pre-line;">{{product.description}}</p>
+          </div>
+
+          <!-- Product Highlights -->
+          <div class="product-features-list">
+            <div class="feature-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+              <span>100% Genuine Quality</span>
+            </div>
+            <div class="feature-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+              </svg>
+              <span>Fast Express Shipping</span>
+            </div>
+            <div class="feature-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              <span>7 Days Easy Return</span>
+            </div>
+            <div class="feature-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              <span>Secure Transactions</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="product-actions-bar">
+            <button onclick="addToCart('{{product._id}}')" class="btn-detail-cart" id="detailAddBtn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+              </svg>
+              <span>Add to Cart</span>
+            </button>
+            <button onclick="buyNow('{{product._id}}')" class="btn btn-outline-dark rounded-pill px-4 py-3 fw-semibold">
+              Buy Now
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Section: Customer Reviews & Ratings -->
+<section class="reviews-section" id="reviews">
+  <div class="container">
+
+    <div class="row mb-5">
+      <div class="col-12">
+        <span class="section-tag">CUSTOMER FEEDBACK</span>
+        <h2 class="section-title">Reviews & Ratings</h2>
+        <p class="section-desc">Real opinions and experiences shared by our community.</p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+
+      <!-- Rating Overview Card -->
+      <div class="col-lg-4">
+        <div class="rating-score-card shadow-2xs mb-4">
+          <div class="score-big">{{#if rating.count}}{{rating.avg}}{{else}}0.0{{/if}}</div>
+          <div class="d-flex justify-content-center gap-1 mb-2">
+            <span class="star-rating-display fs-5">
+              <span class="{{#if (gt rating.avg 0.5)}}star-filled{{else}}star-empty{{/if}}">★</span>
+              <span class="{{#if (gt rating.avg 1.5)}}star-filled{{else}}star-empty{{/if}}">★</span>
+              <span class="{{#if (gt rating.avg 2.5)}}star-filled{{else}}star-empty{{/if}}">★</span>
+              <span class="{{#if (gt rating.avg 3.5)}}star-filled{{else}}star-empty{{/if}}">★</span>
+              <span class="{{#if (gt rating.avg 4.5)}}star-filled{{else}}star-empty{{/if}}">★</span>
+            </span>
+          </div>
+          <div class="text-muted small">Based on {{#if rating.count}}{{rating.count}}{{else}}0{{/if}} verified {{#if (eq rating.count 1)}}review{{else}}reviews{{/if}}</div>
+        </div>
+
+        <!-- Add Review Form -->
+        <div class="review-form-card shadow-2xs">
+          <h5 class="fw-bold mb-3">Add Your Review</h5>
+
+          {{#if user}}
+          <form action="/add-review/{{product._id}}" method="POST">
+            <div class="mb-3">
+              <label class="form-label small fw-medium text-muted mb-1">Your Rating *</label>
+              <div class="star-rating-picker">
+                <input type="radio" id="star5" name="rating" value="5" required>
+                <label for="star5" title="5 stars">★</label>
+                <input type="radio" id="star4" name="rating" value="4">
+                <label for="star4" title="4 stars">★</label>
+                <input type="radio" id="star3" name="rating" value="3">
+                <label for="star3" title="3 stars">★</label>
+                <input type="radio" id="star2" name="rating" value="2">
+                <label for="star2" title="2 stars">★</label>
+                <input type="radio" id="star1" name="rating" value="1">
+                <label for="star1" title="1 star">★</label>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-medium text-muted">Your Comment *</label>
+              <textarea name="comment" class="form-control rounded-3" rows="3" placeholder="Share details of your experience with this item..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-dark w-100 rounded-pill py-2 fw-semibold">Submit Review</button>
+          </form>
+          {{else}}
+          <div class="text-center py-3">
+            <p class="text-muted small mb-3">Please sign in to your account to leave a rating and share your review.</p>
+            <a href="/login" class="btn btn-outline-dark rounded-pill px-4 btn-sm">Sign In to Review</a>
+          </div>
+          {{/if}}
+
+        </div>
+      </div>
+
+      <!-- Customer Reviews List -->
+      <div class="col-lg-8">
+        {{#if reviews.length}}
+          <div class="reviews-list">
+            {{#each reviews}}
+            <div class="review-card-item">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="reviewer-avatar">
+                    {{#if this.userName}}{{this.userName.[0]}}{{else}}U{{/if}}
+                  </div>
+                  <div>
+                    <h6 class="mb-0 fw-semibold text-dark">{{this.userName}}</h6>
+                    <span class="badge bg-success-subtle text-success small py-0 px-2 fw-normal" style="font-size: 0.7rem;">Verified Buyer</span>
+                  </div>
+                </div>
+                <div class="star-rating-display">
+                  <span class="{{#if (gt this.rating 0)}}star-filled{{else}}star-empty{{/if}}">★</span>
+                  <span class="{{#if (gt this.rating 1)}}star-filled{{else}}star-empty{{/if}}">★</span>
+                  <span class="{{#if (gt this.rating 2)}}star-filled{{else}}star-empty{{/if}}">★</span>
+                  <span class="{{#if (gt this.rating 3)}}star-filled{{else}}star-empty{{/if}}">★</span>
+                  <span class="{{#if (gt this.rating 4)}}star-filled{{else}}star-empty{{/if}}">★</span>
+                </div>
+              </div>
+              <p class="text-muted mb-0 small" style="line-height: 1.6;">{{this.comment}}</p>
+            </div>
+            {{/each}}
+          </div>
+        {{else}}
+          <!-- Empty State for Reviews -->
+          <div class="text-center py-5 bg-white rounded-4 border">
+            <div class="mb-3 text-muted">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+            </div>
+            <h5 class="fw-bold mb-1">No Reviews Yet</h5>
+            <p class="text-muted small mb-0">Have you purchased this product? Be the first to leave your feedback above!</p>
+          </div>
+        {{/if}}
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- Related Products Section -->
+{{#if relatedProducts.length}}
+<section class="py-5 bg-white border-top">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <span class="section-tag">SIMILAR FINDS</span>
+        <h3 class="section-title mb-0">You May Also Like</h3>
+      </div>
+      <a href="/category/{{product.category}}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+        View All in {{product.category}}
+      </a>
+    </div>
+
+    <div class="row g-4">
+      {{#each relatedProducts}}
+      <div class="col-6 col-md-3">
+        <div class="product-card">
+          <a href="/product/{{this._id}}" class="product-img-wrap text-decoration-none">
+            <img src="{{#if this.image}}{{this.image}}{{else}}/product-images/{{this._id}}.jpg{{/if}}" alt="{{this.name}}" onerror="this.onerror=null;this.src='/images/hadvo_banner.png';">
+          </a>
+          <div class="product-info">
+            <span class="product-tag">{{this.category}}</span>
+            <h4 class="product-title">
+              <a href="/product/{{this._id}}" class="text-decoration-none text-dark">{{this.name}}</a>
+            </h4>
+            <div class="product-meta mt-auto">
+              {{#if this.offerPrice}}
+                <div class="d-flex align-items-baseline gap-2">
+                  <span class="product-price">₹{{this.offerPrice}}</span>
+                  <del class="text-muted small">₹{{this.price}}</del>
+                </div>
+              {{else}}
+                <span class="product-price">₹{{this.price}}</span>
+              {{/if}}
+              <button onclick="addToCart('{{this._id}}')" class="add-to-cart-btn" id="add-{{this._id}}">
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</section>
+{{/if}}
+
+<!-- Product Gallery & Swapping Script -->
+<script>
+  const galleryImages = [
+    {{#each allImages}}
+      "{{this}}",
+    {{/each}}
+  ];
+  let currentIndex = 0;
+
+  function updateGalleryUI(idx) {
+    if (!galleryImages.length) return;
+    if (idx < 0) idx = galleryImages.length - 1;
+    if (idx >= galleryImages.length) idx = 0;
+    currentIndex = idx;
+
+    const mainImg = document.getElementById('mainProductImg');
+    if (mainImg) {
+      mainImg.style.opacity = '0.3';
+      setTimeout(() => {
+        mainImg.src = galleryImages[currentIndex];
+        mainImg.style.opacity = '1';
+      }, 150);
+    }
+
+    const badge = document.getElementById('currentImgIdx');
+    if (badge) badge.textContent = currentIndex + 1;
+
+    // Highlight active thumbnail
+    document.querySelectorAll('.gallery-thumb-item').forEach((item, i) => {
+      if (i === currentIndex) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+
+  function setMainImage(src, index) {
+    updateGalleryUI(index);
+  }
+
+  function swapGallery(direction) {
+    updateGalleryUI(currentIndex + direction);
+  }
+
+  // Keyboard navigation for image swapper (arrow keys)
+  document.addEventListener('keydown', (e) => {
+    if (galleryImages.length > 1) {
+      if (e.key === 'ArrowLeft') swapGallery(-1);
+      if (e.key === 'ArrowRight') swapGallery(1);
+    }
+  });
+
+  // Buy Now function: add to cart then redirect to /cart
+  function buyNow(productId) {
+    $.ajax({
+      url: '/add-to-cart/' + productId,
+      method: 'get',
+      success: (response) => {
+        if (response.status) {
+          window.location.href = '/cart';
+        } else {
+          window.location.href = '/login';
+        }
+      },
+      error: () => {
+        window.location.href = '/login';
+      }
+    });
+  }
+</script>

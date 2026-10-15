@@ -70,12 +70,22 @@
                         <textarea name="description" class="form-control rounded-3" rows="3" placeholder="Describe the materials, craftsmanship, and fit..." required></textarea>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-medium small text-muted">Product Image *</label>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium small text-muted">Main Product Image *</label>
                         <input type="file" name="image" class="form-control rounded-3" accept="image/*" onchange="viewImage(event)" required>
                         <div class="mt-3 text-center">
-                            <img id="imgPreview" src="#" alt="Preview" class="img-thumbnail rounded-3 d-none border shadow-2xs" style="max-height: 140px; object-fit: cover;">
+                            <img id="imgPreview" src="#" alt="Preview" class="img-thumbnail rounded-3 d-none border shadow-2xs" style="max-height: 140px; object-fit: contain;">
                         </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label fw-medium small text-muted mb-0">Additional Product Photos</label>
+                            <span class="badge bg-light text-muted border px-2 py-0 fs-8">Optional · Multiple</span>
+                        </div>
+                        <input type="file" name="images" id="extraImagesInput" class="form-control rounded-3" accept="image/*" multiple onchange="viewExtraImages(event)">
+                        <div class="form-text small">Select multiple photos for product photo swapper/gallery (Hold Ctrl/Cmd or select multiple files).</div>
+                        <div id="extraImagesPreviewContainer" class="d-flex flex-wrap gap-2 mt-3"></div>
                     </div>
 
                     <button type="submit" class="btn btn-dark btn-lg w-100 rounded-3 fw-semibold shadow-sm">Submit Product</button>
@@ -133,6 +143,24 @@
         if (event.target.files && event.target.files[0]) {
             preview.src = URL.createObjectURL(event.target.files[0]);
             preview.classList.remove('d-none');
+        }
+    }
+
+    function viewExtraImages(event) {
+        const container = document.getElementById('extraImagesPreviewContainer');
+        container.innerHTML = '';
+        if (event.target.files && event.target.files.length > 0) {
+            for (let i = 0; i < event.target.files.length; i++) {
+                const file = event.target.files[i];
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.className = 'img-thumbnail rounded-3 border shadow-2xs';
+                img.style.width = '70px';
+                img.style.height = '70px';
+                img.style.objectFit = 'contain';
+                img.style.background = '#f8f9fa';
+                container.appendChild(img);
+            }
         }
     }
 

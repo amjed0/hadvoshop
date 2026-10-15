@@ -40,19 +40,28 @@ function addToCart(proId) {
 
         // Brief visual feedback on the button
         let btn = $('#add-' + proId);
-        let originalHtml = btn.html();
-        btn.html(`
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-          </svg>
-          Added
-        `);
-        btn.css({ background: '#2d7d46' });
-        setTimeout(() => {
-          btn.html(originalHtml);
-          btn.css({ background: '' });
-        }, 1200);
+        let detailBtn = $('#detailAddBtn');
+        let targetBtn = btn.length ? btn : detailBtn;
+        if (targetBtn.length) {
+          let originalHtml = targetBtn.html();
+          targetBtn.html(`
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>Added!</span>
+          `);
+          targetBtn.css({ background: '#10b981', borderColor: '#10b981' });
+          setTimeout(() => {
+            targetBtn.html(originalHtml);
+            targetBtn.css({ background: '', borderColor: '' });
+          }, 1400);
+        }
+      } else {
+        window.location.href = '/login';
       }
+    },
+    error: () => {
+      window.location.href = '/login';
     }
   });
 }

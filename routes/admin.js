@@ -205,12 +205,25 @@ router.post('/add-product', verifyLogin, async (req, res) => {
 
   if (!name || !category || !description || !price || !image) {
     console.log("❌ Missing fields");
-    return res.render('admin/add-product', { admin: true, categories, error: "Please fill all required fields including image" });
+    return res.render('admin/add-product', { admin: true, categories, error: "Please fill all required fields including main image" });
   }
 
   try {
+    // Upload main image
     const imageUrl = await uploadImage(image, 'product-images');
     req.body.image = imageUrl;
+
+    // Upload additional images (optional, multiple)
+    let extraImages = [];
+    if (req.files?.images) {
+      const imagesRaw = Array.isArray(req.files.images) ? req.files.images : [req.files.images];
+      for (const img of imagesRaw) {
+        const url = await uploadImage(img, 'product-images');
+        extraImages.push(url);
+      }
+    }
+    req.body.images = extraImages;
+
     productHelpers.addProduct(req.body, async (id) => {
       let updatedCategories = await productHelpers.getAllCategories();
       res.render("admin/add-product", { admin: true, categories: updatedCategories, success: "Product added successfully!" });
@@ -220,6 +233,7 @@ router.post('/add-product', verifyLogin, async (req, res) => {
     res.render("admin/add-product", { admin: true, categories, error: "Image upload failed" });
   }
 });
+
 
 // Delete Product
 router.get('/delete-product/:id', verifyLogin, (req, res) => {
@@ -244,6 +258,16 @@ router.post('/edit-product/:id', verifyLogin, async (req, res) => {
     if (req.files && req.files.image) {
       const imageUrl = await uploadImage(req.files.image, 'product-images', id + '.jpg');
       req.body.image = imageUrl;
+    }
+    if (req.files && req.files.images) {
+      const imagesRaw = Array.isArray(req.files.images) ? req.files.images : [req.files.images];
+      let extraImages = [];
+      for (const img of imagesRaw) {
+        const url = await uploadImage(img, 'product-images');
+        extraImages.push(url);
+      }
+      const existingProduct = await productHelpers.getProductDetails(id);
+      req.body.images = [...(existingProduct.images || []), ...extraImages];
     }
     await productHelpers.updateProduct(id, req.body);
     res.redirect('/admin/dashboard');

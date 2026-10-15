@@ -48,12 +48,14 @@
         {{#each products}}
           <div class="col-6 col-md-4 col-lg-3">
             <div class="product-card">
-              <div class="product-img-wrap">
+              <a href="/product/{{this._id}}" class="product-img-wrap text-decoration-none d-flex align-items-center justify-content-center">
                 <img src="{{#if this.image}}{{this.image}}{{else}}/product-images/{{this._id}}.jpg{{/if}}" alt="{{this.name}}" onerror="this.onerror=null;this.src='/images/hadvo_banner.png';">
-              </div>
+              </a>
               <div class="product-info">
                 <span class="product-tag">{{this.category}}</span>
-                <h4 class="product-title">{{this.name}}</h4>
+                <h4 class="product-title">
+                  <a href="/product/{{this._id}}" class="text-decoration-none text-dark">{{this.name}}</a>
+                </h4>
                 <p class="product-desc">{{this.description}}</p>
                 <div class="product-meta">
                   {{#if this.offerPrice}}
